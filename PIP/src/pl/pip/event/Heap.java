@@ -5,16 +5,29 @@
 package pl.pip.event;
 import java.util.ArrayList;
 
+
 /**
  *
  * @author supp
  */
 public class Heap {
     private ArrayList<Event> list;
+    private static volatile Heap instance = null;
+
+    
+    public static Heap getInstance()  {
+		if (instance == null)  {
+			synchronized (Heap.class) {
+				if(instance == null) {
+					instance = new Heap();
+				}
+			}
+		}
+		return instance;
+	}
     
     
-    
-    public Heap()
+    private Heap()
     {
         
         list = new ArrayList<>();

@@ -19,7 +19,7 @@ public class PIP {
     public static void main(String[] args) {
         // TODO code application logic here
         
-      Heap heapEvent = new Heap();
+      Heap heapEvent = Heap.getInstance();
       
       heapEvent.addElement(new Event(9));
        heapEvent.addElement(new Event(6));
