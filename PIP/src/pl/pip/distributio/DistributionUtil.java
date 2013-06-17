@@ -3,10 +3,10 @@ package pl.pip.distributio;
 public class DistributionUtil {
 
 	
-	public static String readWriteOption()
+	public static Boolean readWriteOption()
 	{
-		if(Math.random() > 0.5) return "w";
-		else return "r";
+		if(Math.random() > 0.5) return true;
+		else return false;
 	}
 	
 	/**

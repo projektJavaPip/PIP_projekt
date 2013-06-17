@@ -4,14 +4,16 @@ import java.util.Vector;
 
 public class Host {
 
-	int maxCPU;;
-	int freeCpu;
+	private int maxCPU;;
+	private int freeCpu;
 	
-	HOST_STATUS state;
-	HOST_TYPE hostType;
-	int maxVM;
+	private HOST_STATUS state;
+	private HOST_TYPE hostType;
+	private int maxVM;
 	
-	VM vmarray[];
+	private Vector<VM> vmarray;
+	
+	
 	
 	
 	public Host(HOST_TYPE ht)
@@ -19,10 +21,14 @@ public class Host {
 		
 		if(ht == HOST_TYPE.POWEREDGE_1950) maxVM = 4;
 		else maxVM=9;
-		vmarray = new VM[maxVM];
+		vmarray = new Vector<VM>(0);
 		hostType = ht;
-		for(int i=0;i<maxVM;i++)  vmarray[i] = null;
+		state = HOST_STATUS.BOOT;
 	}
+	
+	
+	public int getVmCounter() { return vmarray.size();}
+	
 	
 	public Vector<VM> getVMforCluster(CLUSTER_TYPE ct)
 	{
@@ -52,7 +58,7 @@ public class Host {
 				freeCpu-= cpus;
 				for(int i=0;i<maxVM;i++)
 				{
-					if(vmarray[i].equals(null)) vmarray[i] = new VM(ct, cpus);
+					vmarray.add(new VM(ct, cpus));
 				}
 				return true;
 			}
@@ -71,6 +77,8 @@ public class Host {
 		state = st;
 	}
 	
+	
+	public HOST_TYPE getHostType() { return hostType;}
 	
 	public boolean turnOn()
 	{

@@ -66,7 +66,7 @@ public class Heap {
               int leftChild = 2 * i +1;
               int rightChild = leftChild + 1;
              
-              if( rightChild < list.size() -1  && list.get(leftChild).compareTo(list.get(rightChild)) < 0 )
+              if( rightChild <= list.size() -1  && list.get(leftChild).compareTo(list.get(rightChild)) < 0 )
               {
                   largerChild = rightChild;
               }
@@ -85,7 +85,10 @@ public class Heap {
          
     }
 
-
+    public boolean isEmpty()
+    {
+        return list.size() == 0 ? true : false; 
+    }
     
     
     
