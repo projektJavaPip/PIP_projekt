@@ -5,6 +5,8 @@
 package pl.pip;
 
 import pl.pip.event.*;
+import pl.pip.host.CLUSTER_TYPE;
+import pl.pip.host.HOST_STATUS;
 
 
 /**
@@ -21,7 +23,12 @@ public class PIP {
         
       Heap heapEvent = Heap.getInstance();
       
-      heapEvent.addElement(new Event(9));
+      heapEvent.addElement(new EventAddRequest(0, CLUSTER_TYPE.GOLD, true));
+      heapEvent.addElement(new EventAddRequest(0, CLUSTER_TYPE.SILVER, true));
+      heapEvent.addElement(new EventAddRequest(0, CLUSTER_TYPE.BRONZE, true));
+        heapEvent.addElement(new EventHost(0, HOST_STATUS.BOOT, 0));
+        heapEvent.addElement(new EventHost(0, HOST_STATUS.BOOT, 1));
+        heapEvent.addElement(new EventHost(0, HOST_STATUS.BOOT, 2));
        heapEvent.addElement(new Event(6));
         heapEvent.addElement(new Event(4));
         heapEvent.addElement(new Event(7));
