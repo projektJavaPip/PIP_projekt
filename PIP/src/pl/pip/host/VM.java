@@ -30,6 +30,9 @@ public class VM {
 	}
 	
 	
+
+	
+	
 	public void getInfo()
 	{
 		System.out.println("KLASTER: " + cluster);
@@ -66,7 +69,7 @@ public class VM {
 	 * 
 	 * @return true gdy zadanie zostanie ustawione na VM, false gdy nie ma wolnych zasob�w
 	 */
-	public boolean doRequest(Request r)
+	public boolean doRequest()
 	{
 		if(freeCpu == 0) return false;
 		else
@@ -77,5 +80,12 @@ public class VM {
 			if(freeCpu == 0) status = VM_STATUS.BUSY;
 			return true;
 		}
+	}
+	
+	
+	public boolean finishRequest()
+	{
+		freeCpu++;
+		return true;
 	}
 }

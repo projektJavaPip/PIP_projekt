@@ -13,6 +13,7 @@ public class EventAddRequest  extends Event {
     
     private CLUSTER_TYPE clusterType;
     private Boolean request_write;
+
     
     public EventAddRequest(double t,CLUSTER_TYPE ct, boolean w)
     {
