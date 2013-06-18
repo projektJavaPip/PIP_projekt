@@ -5,6 +5,7 @@
 *.war
 *.ear
 
+PIP/build/*
 .metadata
 .metadata/*
 target
