@@ -23,14 +23,9 @@ public class EventRemoveRequest extends Event{
         
     }
     
-    public long getIdRequest()
+    public CLUSTER_TYPE getIdRequest()
     {
-        return id_request;
-    }
-    
-    public CLUSTER_TYPE getClusterType()
-    {
-    	return clusterType;
+        return clusterType;
     }
     
     
