@@ -2,7 +2,7 @@ package pl.pip.host;
 
 public class Request {
 	
-	double arrivaTime;
+	private double arrivaTime;
 	double leftTime;
 	long packetId;
 	int vmId;
@@ -19,6 +19,11 @@ public class Request {
 	public void setVmId(int id)
 	{
 		vmId = id;
+	}
+	
+	public void setLeftTime(double lt)
+	{
+		leftTime = lt;
 	}
 	
 	
