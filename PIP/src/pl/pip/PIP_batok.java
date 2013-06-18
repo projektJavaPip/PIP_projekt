@@ -23,6 +23,7 @@ public class PIP_batok {
 		HardwareLayerSingleton.getInstance().showPowerCalculations();*/
 
 		Cluster gold = new Cluster(CLUSTER_TYPE.GOLD);
+		Cluster bronze = new Cluster(CLUSTER_TYPE.BRONZE);
 	}
 
 }
