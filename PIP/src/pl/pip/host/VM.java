@@ -4,7 +4,7 @@ package pl.pip.host;
 
 public class VM {
 
-	int performance;
+	double performance;
 	int freeCpu;
 	int maxCpu;
 	int id;
@@ -20,6 +20,9 @@ public class VM {
 		vm_ht = ht;
 		cluster = ct;
 		id = vmId; 
+		
+		if(ht == HOST_TYPE.POWEREDGE_1950) performance = 0.03;
+		else performance = 0.025;
 		//Dodanie Eventu zmiany statusu na Free
 	}
 	
