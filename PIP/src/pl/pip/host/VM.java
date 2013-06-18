@@ -7,15 +7,19 @@ public class VM {
 	int performance;
 	int freeCpu;
 	int maxCpu;
+	int id;
 	VM_STATUS status;
 	CLUSTER_TYPE cluster;
+	HOST_TYPE vm_ht;
 	
-	public VM(CLUSTER_TYPE ct, int _maxCpu)
+	public VM(CLUSTER_TYPE ct, int _maxCpu,int vmId,HOST_TYPE ht)
 	{
 		maxCpu = _maxCpu;
 		freeCpu = _maxCpu;
 		status = VM_STATUS.TURNING_ON;
+		vm_ht = ht;
 		cluster = ct;
+		id = vmId; 
 		//Dodanie Eventu zmiany statusu na Free
 	}
 	
@@ -26,6 +30,15 @@ public class VM {
 	}
 	
 	
+	public void getInfo()
+	{
+		System.out.println("KLASTER: " + cluster);
+		System.out.println("TYP_HOSTA: " + vm_ht);
+		System.out.println("LICZBA CPU: " + maxCpu);
+		System.out.println("ID: " + id);
+		System.out.println("");
+
+	}
 	
 	
 	public boolean isFree()
@@ -46,11 +59,14 @@ public class VM {
 		status = VM_STATUS.FREE;
 	}
 	
+	
+	
+	
 	/**
 	 * 
 	 * @return true gdy zadanie zostanie ustawione na VM, false gdy nie ma wolnych zasob�w
 	 */
-	public boolean doRequest()
+	public boolean doRequest(Request r)
 	{
 		if(freeCpu == 0) return false;
 		else

@@ -5,16 +5,23 @@ import java.util.Vector;
 
 import pl.pip.event.Event;
 import pl.pip.event.EventAddRequest;
+import pl.pip.event.EventRemoveRequest;
 
 public class Cluster {
 	
 	private LinkedList<Request> requestQuee;
+	private Vector<Request> actualProcessedRequest;
 	CLUSTER_TYPE type;
 	
-	Cluster(CLUSTER_TYPE  ct)
+
+	public Cluster(CLUSTER_TYPE  ct)
 	{
 		type = ct;
 		requestQuee = new LinkedList<Request>();
+		Vector<VM> cluseterVms = HardwareLayerSingleton.getInstance().getVMsforCluster(type);
+		
+		System.out.println("VMs " + cluseterVms.size());
+		
 	}
 	
 	public void pushToQuee(Request r)
@@ -31,8 +38,14 @@ public class Cluster {
 	
 	public void receive(Event e)
 	{
-		if(e instanceof EventAddRequest) requestQuee.add(new Request(e.getTime()));
-		//if(e instanceof removeRequest)
+		if(e instanceof EventAddRequest) 
+		{
+	//		if(actualProcessedRequest.size() < )	requestQuee.add(new Request(e.getTime()));
+		}
+		else if(e instanceof EventRemoveRequest)
+		{
+			
+		}
 	
 	}
 	
