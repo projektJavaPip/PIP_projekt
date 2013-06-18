@@ -34,7 +34,7 @@ public class Host {
 		freeCpu = maxCPU;
 		vmarray = new Vector<VM>(0);
 		hostType = ht;
-		state = HOST_STATUS.BOOT;
+		state = HOST_STATUS.OFF;
 		
 		//Wstawienie Eventu, ze uruchomi się po czasie HOST_START;
 	}

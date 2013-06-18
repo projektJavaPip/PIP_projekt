@@ -9,10 +9,10 @@ import pl.pip.host.CLUSTER_TYPE;
  *
  * @author supp
  */
-public class EventClaster extends Event{
+public class EventCreateCluster extends Event{
     CLUSTER_TYPE cluster_typ;
     
-    public EventClaster(double t,CLUSTER_TYPE ct )
+    public EventCreateCluster(double t,CLUSTER_TYPE ct )
     {
         super(t);
         this.cluster_typ = ct;

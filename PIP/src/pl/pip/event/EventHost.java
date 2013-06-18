@@ -13,9 +13,9 @@ import pl.pip.host.HOST_STATUS;
 public class EventHost extends Event{
     
     private HOST_STATUS h_status;
-    private long id_host;
+    private int id_host;
     
-    public EventHost(double t, HOST_STATUS hs, long id)
+    public EventHost(double t, HOST_STATUS hs, int id)
     {
         super(t);
         this.h_status = hs;
@@ -28,7 +28,7 @@ public class EventHost extends Event{
         return h_status;
     }
     
-    public  long getIdHost()
+    public  int getIdHost()
     {
         return id_host;
     } 

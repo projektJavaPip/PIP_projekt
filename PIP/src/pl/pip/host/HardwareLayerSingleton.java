@@ -3,6 +3,9 @@ package pl.pip.host;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import pl.pip.config.TimeUtils;
+import pl.pip.event.EventHost;
+import pl.pip.event.Heap;
 import pl.pip.host.HOST_TYPE;
 import pl.pip.host.Host;
 import pl.pip.host.VM;
@@ -47,7 +50,7 @@ static int VMid =1;
 		hostsArray.add(new Host(HOST_TYPE.POWEREDGE_1950));
 		hostsArray.elementAt(0).setState(HOST_STATUS.ON);
 		//Wstawienie VMek na 2 hosty startowe
-		hostsArray.elementAt(0).addVM(CLUSTER_TYPE.GOLD, 3, getVmId());
+		/*hostsArray.elementAt(0).addVM(CLUSTER_TYPE.GOLD, 3, getVmId());
 		hostsArray.elementAt(0).addVM(CLUSTER_TYPE.GOLD, 3, getVmId());
 		hostsArray.elementAt(0).addVM(CLUSTER_TYPE.SILVER, 2, getVmId());
 
@@ -55,12 +58,36 @@ static int VMid =1;
 		hostsArray.elementAt(1).setState(HOST_STATUS.ON);
 		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.SILVER, 3, getVmId());
 		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.BRONZE, 3, getVmId());
-		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.BRONZE, 2, getVmId());
+		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.BRONZE, 2, getVmId());*/
 		
 		
 		powerUtilization = new Vector<PowerCalculation>(0);
 		
 	}
+	
+	
+	public boolean startHost(int Id)
+	{
+		if(hostsArray.elementAt(Id).getState() == HOST_STATUS.OFF)
+		{
+			hostsArray.elementAt(Id).setState(HOST_STATUS.BOOT);
+			Heap.getInstance().addElement(new EventHost(TimeUtils.TIME_DELAY_POWER_ON_HOST, HOST_STATUS.ON, Id));
+			return true;
+		}
+		else return false;
+	}
+	
+	public boolean startVMonHost(int Id)
+	{
+		return true;
+		//Sprawdzenie czy HostMa status uruchomiony
+		//Tu trzeba sprawdzic czy mozna utworzyć wirtualke
+	}
+	
+	
+	
+
+	
 	
 	
 	/**

@@ -12,21 +12,23 @@ import pl.pip.host.VM_STATUS;
 public class EventVM extends Event{
     
     VM_STATUS vm_status;
-    long id_vm;
-    long to_host;
-    long from_host;
+    int id_vm;
+    int to_host;
+    int from_host;
     
-    public EventVM(double t, VM_STATUS vs, long id_vm)
+    public EventVM(double t, VM_STATUS vs, int id_vm)
     {
         super(t);
         this.vm_status = vs;
         this.id_vm = id_vm;
         
+        
     }
     
+
     
     
-    public EventVM(double t, VM_STATUS vs, long id_vm, long fromh, long toh)
+    public EventVM(double t, VM_STATUS vs, int id_vm, int fromh, int toh)
     {
         super(t);
         this.vm_status = vs;

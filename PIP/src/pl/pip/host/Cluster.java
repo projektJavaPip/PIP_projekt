@@ -43,7 +43,7 @@ public class Cluster {
 	 * Metoda wywoływana gdy zajdną zmiany w konfiguracji sprzętowej danego klastra
 	 * po wywołaniu algorytmu LLC
 	 */
-	public void actualizaVms()
+	public void actualizeVms()
 	{
 		clusterVms = HardwareLayerSingleton.getInstance().getVMsforCluster(type);
 	}
