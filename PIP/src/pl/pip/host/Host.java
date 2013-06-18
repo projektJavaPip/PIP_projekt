@@ -10,33 +10,20 @@ public class Host {
 	private HOST_STATUS state;
 	private HOST_TYPE hostType;
 	private int maxVM;
-	private int coreEfficency;
-	private Vector<VM> vmarray;
-
 	
-
+	private Vector<VM> vmarray;
+	
+	
+	
 	
 	public Host(HOST_TYPE ht)
 	{
 		
-		if(ht == HOST_TYPE.POWEREDGE_1950) 
-		{
-			maxVM = 4;
-			maxCPU = 8;
-			coreEfficency = 100;
-		}
-		else 
-		{
-			maxVM=9;
-			maxCPU = 8;
-			coreEfficency = 190;
-		}
-		freeCpu = maxCPU;
+		if(ht == HOST_TYPE.POWEREDGE_1950) maxVM = 4;
+		else maxVM=9;
 		vmarray = new Vector<VM>(0);
 		hostType = ht;
 		state = HOST_STATUS.BOOT;
-		
-		//Wstawienie Eventu, ze uruchomi się po czasie HOST_START;
 	}
 	
 	
@@ -61,16 +48,18 @@ public class Host {
 	}
 	
 	
-	public  boolean addVM(CLUSTER_TYPE ct,int cpus,int vMid)
+	public  boolean addVM(CLUSTER_TYPE ct,int cpus)
 	{
-
 		if(freeCpu > 0)
 		{
 			if(cpus > freeCpu) return false;
 			else
 			{
 				freeCpu-= cpus;
-				vmarray.add(new VM(ct, cpus,vMid,hostType));
+				for(int i=0;i<maxVM;i++)
+				{
+					vmarray.add(new VM(ct, cpus));
+				}
 				return true;
 			}
 		}

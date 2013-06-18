@@ -23,6 +23,15 @@ public class EventHost extends Event{
         
     }
     
+    public HOST_STATUS getStatus()
+    {
+        return h_status;
+    }
+    
+    public  long getIdHost()
+    {
+        return id_host;
+    } 
     
     
 }

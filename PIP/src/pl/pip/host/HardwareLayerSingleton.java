@@ -12,19 +12,14 @@ public class HardwareLayerSingleton {
 	
 private static volatile HardwareLayerSingleton instance = null;
 private static int maxHosts = 5;
-private static Vector<Host> hostsArray;
+private Vector<Host> hostsArray;
 
 private Vector<PowerCalculation> powerUtilization;
 
 
-static int VMid =1;
 
 
 
-	private int getVmId()
-	{
-		return ++VMid;
-	}
 	
 	public static HardwareLayerSingleton getInstance()  {
 		if (instance == null)  {
@@ -46,17 +41,7 @@ static int VMid =1;
 		hostsArray.add(new Host(HOST_TYPE.POWEREDGE_1950));
 		hostsArray.add(new Host(HOST_TYPE.POWEREDGE_1950));
 		hostsArray.elementAt(0).setState(HOST_STATUS.ON);
-		//Wstawienie VMek na 2 hosty startowe
-		hostsArray.elementAt(0).addVM(CLUSTER_TYPE.GOLD, 3, getVmId());
-		hostsArray.elementAt(0).addVM(CLUSTER_TYPE.GOLD, 3, getVmId());
-		hostsArray.elementAt(0).addVM(CLUSTER_TYPE.SILVER, 2, getVmId());
-
-
 		hostsArray.elementAt(1).setState(HOST_STATUS.ON);
-		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.SILVER, 3, getVmId());
-		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.BRONZE, 3, getVmId());
-		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.BRONZE, 2, getVmId());
-		
 		
 		powerUtilization = new Vector<PowerCalculation>(0);
 		
@@ -73,9 +58,9 @@ static int VMid =1;
 		Vector<VM> returnVector = new Vector<VM>(1);
 		for(Host h : hostsArray)
 		{
-			for(VM v : h.getVMforCluster(ct))
+			Vector<VM> tmp = h.getVMforCluster(ct);
+			for(VM v : tmp)
 			{
-				v.getInfo();
 				returnVector.add(v);
 			}
 		}
@@ -84,8 +69,7 @@ static int VMid =1;
 	}
 	
 
-	//public int getFreeCpusForCluest()
-
+	
 	
 	
 	public void countPowerUtilitiFrom(double toTime)
