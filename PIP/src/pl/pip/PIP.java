@@ -5,6 +5,7 @@
 package pl.pip;
 
 import pl.pip.event.*;
+import pl.pip.symulation.Simulation;
 
 
 /**
@@ -12,27 +13,17 @@ import pl.pip.event.*;
  * @author supp
  */
 public class PIP {
-
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         // TODO code application logic here
         
-      Heap heapEvent = Heap.getInstance();
-      
-      heapEvent.addElement(new Event(9));
-       heapEvent.addElement(new Event(6));
-        heapEvent.addElement(new Event(4));
-        heapEvent.addElement(new Event(7));
-     
+        Simulation s = new Simulation(800000);
         
-          
-          
-            while( !heapEvent.isEmpty())
-            {
-                  System.out.println(heapEvent.getElment().getTime());
-            }
+        s.init();
+        
+        s.start();
             
                   
         

@@ -100,9 +100,12 @@ public class Heap {
 
     public boolean isEmpty()
     {
-        return list.size() == 0 ? true : false; 
+        return list.isEmpty(); 
     }
     
-    
+   public void clear()
+   {
+       list.clear();
+   } 
     
 }
