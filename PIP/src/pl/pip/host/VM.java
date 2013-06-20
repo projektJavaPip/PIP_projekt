@@ -8,6 +8,7 @@ public class VM {
 	int freeCpu;
 	int maxCpu;
 	int id;
+	double frequency;
 	VM_STATUS status;
 	CLUSTER_TYPE cluster;
 	HOST_TYPE vm_ht;
@@ -20,9 +21,21 @@ public class VM {
 		vm_ht = ht;
 		cluster = ct;
 		id = vmId; 
+		double core = 0;
+		if(ht == HOST_TYPE.POWEREDGE_1950) 
+		{
+				performance = 0.03;
+				core = 1.6;
+		}
+		else 
+		{
+			performance = 0.025;
+			core = 2.3;
+		}
 		
-		if(ht == HOST_TYPE.POWEREDGE_1950) performance = 0.03;
-		else performance = 0.025;
+		
+		frequency = maxCpu * core;
+		
 		//Dodanie Eventu zmiany statusu na Free
 	}
 	
@@ -38,12 +51,13 @@ public class VM {
 	
 	public void getInfo()
 	{
+		System.out.println("ID: " + id);
 		System.out.println("KLASTER: " + cluster);
 		System.out.println("TYP_HOSTA: " + vm_ht);
 		System.out.println("LICZBA CPU: " + maxCpu);
-		System.out.println("ID: " + id);
+		System.out.println("STATUS: " + status.name());
+		System.out.println("FREQ: " + frequency);
 		System.out.println("");
-
 	}
 	
 	
@@ -66,6 +80,17 @@ public class VM {
 	}
 	
 	
+	
+	public void setState(VM_STATUS st)
+	{
+		status = st;
+	}
+	
+	
+	public VM_STATUS getState()
+	{
+		return status;
+	}
 	
 	
 	/**

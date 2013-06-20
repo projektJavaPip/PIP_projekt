@@ -35,8 +35,6 @@ public class Host {
 		vmarray = new Vector<VM>(0);
 		hostType = ht;
 		state = HOST_STATUS.OFF;
-		
-		//Wstawienie Eventu, ze uruchomi się po czasie HOST_START;
 	}
 	
 	
@@ -54,11 +52,47 @@ public class Host {
 	}
 	
 	
+	public Vector<VM> getVms()
+	{
+		return vmarray;
+	}
+	
+	
 	
 	public int getFreeCpus()
 	{
 		return freeCpu;
 	}
+	
+	
+	
+	public boolean removeVM(int vmId)
+	{
+		for(int i=0;i<vmarray.size();i++)
+		{
+			if(vmarray.elementAt(i).id ==vmId ) 
+			{
+				vmarray.removeElementAt(i);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	
+	public boolean addVM(VM v)
+	{
+		if(v.maxCpu < freeCpu)
+		{
+			vmarray.add(v);
+			return true;
+		}
+		else return false;
+	}
+	
+	
+	
 	
 	
 	public  boolean addVM(CLUSTER_TYPE ct,int cpus,int vMid)

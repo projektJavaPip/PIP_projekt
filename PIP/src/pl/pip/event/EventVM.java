@@ -38,7 +38,7 @@ public class EventVM extends Event{
         
     }
     
-    public long getIdVm()
+    public int getIdVm()
     {
         return id_vm;
     }
@@ -48,19 +48,9 @@ public class EventVM extends Event{
         return vm_status;
     }
     
-    public long getFromIdHost() throws Exception
-    {
-        if( vm_status == VM_STATUS.MIGRATION)
-        {
-            return from_host;
-        }
-        else
-        {
-            throw new Exception("to nie jest migracja.");
-        }
-    }
+
         
-         public long getToIdHost() throws Exception
+         public int getToIdHost() throws Exception
     {
         if( vm_status == VM_STATUS.MIGRATION)
         {

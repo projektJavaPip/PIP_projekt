@@ -22,22 +22,12 @@ public class Cluster {
 	{
 		type = ct;
 		requestQuee = new LinkedList<Request>();
+		actualProcessedRequest = new Vector<>();
 		clusterVms = HardwareLayerSingleton.getInstance().getVMsforCluster(type);
 		System.out.println("VMs " + clusterVms.size());
 		
 	}
-	
-	public void pushToQuee(Request r)
-	{
-		requestQuee.add(r);
-	}
-	
-	
-	public void getFromQuee(Request r)
-	{
-		requestQuee.removeFirst();
-	}
-	
+
 	
 	/**
 	 * Metoda wywoływana gdy zajdną zmiany w konfiguracji sprzętowej danego klastra
@@ -49,7 +39,7 @@ public class Cluster {
 	}
 	
 	
-	public int getFreeVmId()
+	private int getFreeVmId()
 	{
 		for(int i=0;i<clusterVms.size();i++)
 		{
@@ -96,7 +86,7 @@ public class Cluster {
 					Request r = actualProcessedRequest.elementAt(i);
 					r.setLeftTime(TimeUtils.CURRENT_TIME);
 					StatisticsSing.getInstance().addRequest(r);
-					actualProcessedRequest.remove(i); //konczymy przetwarzanie requesta
+					actualProcessedRequest.removeElementAt(i); //konczymy przetwarzanie requesta
 					clusterVms.elementAt(r.vmId).finishRequest();
 					
 				}

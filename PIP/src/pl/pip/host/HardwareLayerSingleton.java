@@ -26,7 +26,7 @@ static int VMid =1;
 
 	private int getVmId()
 	{
-		return ++VMid;
+		return VMid++;
 	}
 	
 	public static HardwareLayerSingleton getInstance()  {
@@ -42,25 +42,12 @@ static int VMid =1;
 	
 	private HardwareLayerSingleton()
 	{
-		hostsArray = new Vector<Host>(2);
+		hostsArray = new Vector<Host>(5);
 		hostsArray.add(new Host(HOST_TYPE.POWEREDGE_2950));
 		hostsArray.add(new Host(HOST_TYPE.POWEREDGE_2950));
 		hostsArray.add(new Host(HOST_TYPE.POWEREDGE_1950));
 		hostsArray.add(new Host(HOST_TYPE.POWEREDGE_1950));
 		hostsArray.add(new Host(HOST_TYPE.POWEREDGE_1950));
-		hostsArray.elementAt(0).setState(HOST_STATUS.ON);
-		//Wstawienie VMek na 2 hosty startowe
-		/*hostsArray.elementAt(0).addVM(CLUSTER_TYPE.GOLD, 3, getVmId());
-		hostsArray.elementAt(0).addVM(CLUSTER_TYPE.GOLD, 3, getVmId());
-		hostsArray.elementAt(0).addVM(CLUSTER_TYPE.SILVER, 2, getVmId());
-
-
-		hostsArray.elementAt(1).setState(HOST_STATUS.ON);
-		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.SILVER, 3, getVmId());
-		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.BRONZE, 3, getVmId());
-		hostsArray.elementAt(1).addVM(CLUSTER_TYPE.BRONZE, 2, getVmId());*/
-		
-		
 		powerUtilization = new Vector<PowerCalculation>(0);
 		
 	}
@@ -77,21 +64,65 @@ static int VMid =1;
 		else return false;
 	}
 	
-	public boolean startVMonHost(int Id)
+	
+	/**
+	 * Uruchomienie 
+	 * @param Id
+	 * @param ct
+	 * @param cpus
+	 * @return
+	 */
+	public int startVMonHost(int Id,CLUSTER_TYPE ct, int cpus)
 	{
-		return true;
+		
+		int vmId =  getVmId();
+		if(hostsArray.elementAt(Id).addVM(ct, cpus, vmId)) return vmId;
+		else return 0;
 		//Sprawdzenie czy HostMa status uruchomiony
 		//Tu trzeba sprawdzic czy mozna utworzyć wirtualke
 	}
-	
-	
 	
 
 	
 	
 	
+	public VM getVM(int vmId)
+	{
+		for(Host h : hostsArray)
+		{
+			
+			for(VM v : h.getVms())
+			{
+				if(v.id == vmId) return v;
+			}
+		}
+		return null;
+	}
+	
+	
+	public void removeVM(int vmId)
+	{
+		for(Host h : hostsArray)
+		{
+			for(VM v : h.getVms())
+			{
+				if(v.id == vmId)  h.removeVM(vmId);
+			}
+		}
+	}
+	
+	
+	public void setVM(VM migVm,int hid) 
+	{
+		hostsArray.elementAt(hid).addVM(migVm);
+	}
+		
+
+	
+	
+	
 	/**
-	 * Zwraca liczbe maszyn wirtualnych przypisanych do konkretnego klastra
+	 * Zwraca maszyny wirtuale przypisane do konkretnego klastra
 	 * @param ct
 	 * @return
 	 */
@@ -102,7 +133,8 @@ static int VMid =1;
 		{
 			for(VM v : h.getVMforCluster(ct))
 			{
-				v.getInfo();
+				//v.getInfo();
+				if(v.getState() == VM_STATUS.BUSY || v.getState() == VM_STATUS.FREE ) //VMki są dostępne dla klastra tylko wtedy gdy są uruchomione
 				returnVector.add(v);
 			}
 		}
@@ -210,4 +242,6 @@ static int VMid =1;
 	{
 		for(PowerCalculation pc : powerUtilization) System.out.println(pc.getLastTime() + " : " + pc.getPowerLevel());
 	}
+
+	
 }

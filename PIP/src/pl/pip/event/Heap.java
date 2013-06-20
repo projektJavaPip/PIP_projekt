@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class Heap {
     private ArrayList<Event> list;
     private static volatile Heap instance = null;
-
+    public boolean debug = true;
     
     public static Heap getInstance()  {
 		if (instance == null)  {
@@ -56,18 +56,20 @@ public class Heap {
     
     public Event getElment()
     {
-        Event e = list.get(0);
-        list.set(0, list.get(list.size() - 1));
-        list.remove(list.size() - 1 );
-        
-        if(list.size() > 0)
-        { 
-            trickleDown(0);
-        }
-        
-    
-        return e;
-        
+    	if(!list.isEmpty()) //Sprawdzenie czy kopiec zawiera elememty
+    	{
+	        Event e = list.get(0);
+	        list.set(0, list.get(list.size() - 1));
+	        list.remove(list.size() - 1 );
+	        
+	        if(list.size() > 0)
+	        { 
+	            trickleDown(0);
+	        }
+	   
+	        return e;
+    	}
+    	else return null;
     }
 
     private void trickleDown(int i) {
