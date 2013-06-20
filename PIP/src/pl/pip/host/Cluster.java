@@ -55,7 +55,9 @@ public class Cluster {
 		{	
 			int freeVmId = getFreeVmId();
 			long packetId = RequestNumberGeneratorSing.getInstance().getRequestId(); //pobieram nastepny numer pakietu
-			Request nr = new Request(e.getTime(),packetId); 
+			Request nr = new Request(e.getTime(),packetId,((EventAddRequest) e).isWrite()); 
+		
+			
 			if(freeVmId == -1 ) requestQuee.add(nr);  //jesli nie ma zadnej wolnej VM to wstaw pakiet na kolejke oczekujacych
 			else 
 			{
@@ -67,8 +69,8 @@ public class Cluster {
 				if(!clusterVms.elementAt(freeVmId).doRequest()) System.out.println("Something's wrong in add Request to VM");
 				
 				double executionTime;
-						if(((EventAddRequest) e).isWrite()) executionTime = 2 * vmPerformance;
-						else executionTime = vmPerformance;
+						if(nr.isWrite) executionTime = 2 * vmPerformance * (Math.random() * 2 + 2); //mnożymy czas obslugi zadania zapisu w zakresie od 1 do 3
+						else executionTime = vmPerformance * (Math.random() * 2 + 1);
 				
 						
 				EventRemoveRequest err = new EventRemoveRequest(TimeUtils.CURRENT_TIME + executionTime,type,packetId); //- wpychamy na stog eventa kiedy pakiet zostanie obsluzony
@@ -87,8 +89,11 @@ public class Cluster {
 					r.setLeftTime(TimeUtils.CURRENT_TIME);
 					StatisticsSing.getInstance().addRequest(r);
 					actualProcessedRequest.removeElementAt(i); //konczymy przetwarzanie requesta
-					clusterVms.elementAt(r.vmId).finishRequest();
 					
+					for(VM v : clusterVms)
+					{
+						if(v.id == r.vmId) v.finishRequest();
+					}
 				}
 			}
 			if(requestQuee.size() > 0) //Tu musimy pobrac element z kolejki oczekujacych na wykonanie, sprawdzic VMke i wrzucic requesta na liste aktualnie wykonywanych
@@ -104,7 +109,7 @@ public class Cluster {
 				if(!clusterVms.elementAt(freeVmId).doRequest()) System.out.println("Something's wrong in add Request to VM");
 				
 				double executionTime;
-						if(((EventAddRequest) e).isWrite()) executionTime = 2 * vmPerformance;
+						if(oldr.isWrite) executionTime = 2 * vmPerformance;
 						else executionTime = vmPerformance;
 				
 						

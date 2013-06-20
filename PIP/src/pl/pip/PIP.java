@@ -19,7 +19,7 @@ public class PIP {
     public static void main(String[] args) {
         // TODO code application logic here
         
-        Simulation s = new Simulation(800000);
+        Simulation s = new Simulation(177100);
         
         s.init();
         

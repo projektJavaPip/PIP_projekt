@@ -15,7 +15,7 @@ public class DistributionUtil {
 	 * @return
 	 */
 	public static double generateEventUs(double lambda) {
-		Double ret = (double) Math.round(1-  Math.log(Math.random()) / -(1/lambda)) ;
+		Double ret = (double) 1-  Math.log(Math.random()) / -(1/lambda) ;
 		if(ret < 0) return -1 * ret;
 		else return ret;
 	}
