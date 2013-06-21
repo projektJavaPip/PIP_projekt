@@ -16,7 +16,7 @@ public class Cluster {
 	private Vector<Request> actualProcessedRequest;
 	public Vector<VM >clusterVms; 
 	CLUSTER_TYPE type;
-	int clusterType;
+	int performence;
 
 	public Cluster(CLUSTER_TYPE  ct)
 	{
@@ -24,8 +24,12 @@ public class Cluster {
 		requestQuee = new LinkedList<Request>();
 		actualProcessedRequest = new Vector<>();
 		clusterVms = HardwareLayerSingleton.getInstance().getVMsforCluster(type);
-		System.out.println("VMs " + clusterVms.size());
+		for(VM cwm : clusterVms)
+		{
+			performence += cwm.freeCpu;
+		}
 		
+		System.out.println("VMs " + clusterVms.size());	
 	}
 
 	
@@ -35,7 +39,12 @@ public class Cluster {
 	 */
 	public void actualizeVms()
 	{
+		performence = 0;
 		clusterVms = HardwareLayerSingleton.getInstance().getVMsforCluster(type);
+		for(VM cwm : clusterVms)
+		{
+			performence += cwm.freeCpu;
+		}
 	}
 	
 	
@@ -55,7 +64,7 @@ public class Cluster {
 		{	
 			int freeVmId = getFreeVmId();
 			long packetId = RequestNumberGeneratorSing.getInstance().getRequestId(); //pobieram nastepny numer pakietu
-			Request nr = new Request(e.getTime(),packetId,((EventAddRequest) e).isWrite()); 
+			Request nr = new Request(e.getTime(),packetId,((EventAddRequest) e).isWrite(),type); 
 		
 			
 			if(freeVmId == -1 ) requestQuee.add(nr);  //jesli nie ma zadnej wolnej VM to wstaw pakiet na kolejke oczekujacych
@@ -69,8 +78,12 @@ public class Cluster {
 				if(!clusterVms.elementAt(freeVmId).doRequest()) System.out.println("Something's wrong in add Request to VM");
 				
 				double executionTime;
-						if(nr.isWrite) executionTime = 2 * vmPerformance * (Math.random() * 2 + 2); //mnożymy czas obslugi zadania zapisu w zakresie od 1 do 3
+					/*	if(nr.isWrite) executionTime = 2 * vmPerformance * (Math.random() * 2 + 2); //mnożymy czas obslugi zadania zapisu w zakresie od 1 do 3
 						else executionTime = vmPerformance * (Math.random() * 2 + 1);
+				*/
+				
+				if(nr.isWrite) executionTime = TimeUtils.TIME_PER_GHZ[type.ordinal()] / vmPerformance ;
+				else executionTime = TimeUtils.TIME_PER_GHZ[type.ordinal()] / vmPerformance /2; 
 				
 						
 				EventRemoveRequest err = new EventRemoveRequest(TimeUtils.CURRENT_TIME + executionTime,type,packetId); //- wpychamy na stog eventa kiedy pakiet zostanie obsluzony
@@ -109,8 +122,8 @@ public class Cluster {
 				if(!clusterVms.elementAt(freeVmId).doRequest()) System.out.println("Something's wrong in add Request to VM");
 				
 				double executionTime;
-						if(oldr.isWrite) executionTime = 2 * vmPerformance;
-						else executionTime = vmPerformance;
+				if(oldr.isWrite) executionTime = TimeUtils.TIME_PER_GHZ[type.ordinal()] / vmPerformance ;
+				else executionTime = TimeUtils.TIME_PER_GHZ[type.ordinal()] / vmPerformance /2; 
 				
 						
 				EventRemoveRequest err = new EventRemoveRequest(TimeUtils.CURRENT_TIME + executionTime,type,oldr.packetId); //- wpychamy na stog eventa kiedy pakiet zostanie obsluzony

@@ -24,16 +24,14 @@ public class VM {
 		double core = 0;
 		if(ht == HOST_TYPE.POWEREDGE_1950) 
 		{
-				performance = 1;
 				core = 1.6;
 		}
 		else 
 		{
-			performance = 0.7;
 			core = 2.3;
 		}
 		
-		
+		performance = core;
 		frequency = maxCpu * core;
 		
 		//Dodanie Eventu zmiany statusu na Free

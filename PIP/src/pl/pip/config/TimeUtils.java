@@ -21,8 +21,16 @@ public class TimeUtils {
     
     public final static double TIME_CONTROL_SAMPLING_PREODIC = 120000; //1m 45s
     
+    
+    public final static double SIMULATION_FINISH_TIME = 24 * 3600 * 1000;
+    
     public static double CURRENT_TIME;
-   
+    
+    public static double[]  TIME_PER_GHZ = { 200,111.111,100};
+    public static double[] SLA = {3000,2000,5000};
+ 
+    
+
     
     
     

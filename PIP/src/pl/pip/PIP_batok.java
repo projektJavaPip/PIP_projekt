@@ -1,6 +1,6 @@
 package pl.pip;
 
-import pl.pip.distributio.DistributionUtil;
+import pl.pip.distributio.Distribution;
 import pl.pip.host.CLUSTER_TYPE;
 import pl.pip.host.Cluster;
 import pl.pip.host.HardwareLayerSingleton;
@@ -13,7 +13,7 @@ public class PIP_batok {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		
+		Distribution distr = new Distribution();
 		
 		
 
@@ -22,9 +22,26 @@ public class PIP_batok {
 			HardwareLayerSingleton.getInstance().countPowerUtilitiFrom(i * j);
 		}
 		HardwareLayerSingleton.getInstance().showPowerCalculations();*/
-		for(int i =0;i< 100;i++)
+		
+		Integer j[] = new Integer[25];
+		for(int i =0;i<25;i++) 
+			{
+			
+			j[i] = new Integer(0);
+			}
+		
+		for(int i =0;i< 1000;i++)
 		{
-			System.out.println(DistributionUtil.generateEventUs(5));
+			//System.out.print(distr.generateEventUs(CLUSTER_TYPE.GOLD) + " ");
+			//System.out.println(distr.readWriteOption(CLUSTER_TYPE.GOLD));
+			int tmp = distr.getPareto();
+	
+			j[tmp]++;
+		}
+		
+		for(int i=0;i<20;i++)
+		{
+			System.out.println(j[i]);
 		}
 
 	}

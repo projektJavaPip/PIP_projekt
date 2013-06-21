@@ -2,7 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package pl.pip.symulation;
+package pl.pip.simulation;
+
+import com.sun.corba.se.spi.monitoring.StatisticsAccumulator;
 
 import pl.pip.config.*;
 import pl.pip.event.*;
@@ -12,7 +14,8 @@ import pl.pip.host.HOST_STATUS;
 import pl.pip.host.HardwareLayerSingleton;
 import pl.pip.host.VM;
 import pl.pip.host.VM_STATUS;
-import pl.pip.distributio.DistributionUtil;
+import pl.pip.statistics.StatisticsSing;
+import pl.pip.distributio.Distribution;
 
 /**
  *
@@ -40,23 +43,26 @@ public class Simulation {
         
         heap.clear();
         
+        
+        //Uruchomienie hostów
         heap.addElement(new EventHost(0, HOST_STATUS.BOOT, 0));
         heap.addElement(new EventHost(0, HOST_STATUS.BOOT, 1));
         heap.addElement(new EventHost(0, HOST_STATUS.BOOT, 2));
         heap.addElement(new EventHost(0, HOST_STATUS.BOOT, 3));
         heap.addElement(new EventHost(0, HOST_STATUS.BOOT, 4));
 
-        
+        //Utworzenie klastów
         heap.addElement(new EventCreateCluster(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST, CLUSTER_TYPE.GOLD));
-        // heap.addElement(new EventCreateCluster(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST, CLUSTER_TYPE.SILVER));
-       // heap.addElement(new EventCreateCluster(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST, CLUSTER_TYPE.BRONZE));
+        heap.addElement(new EventCreateCluster(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST, CLUSTER_TYPE.SILVER));
+        heap.addElement(new EventCreateCluster(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST, CLUSTER_TYPE.BRONZE));
        
-       heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.GOLD, true));
-     
 
-      //	  heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.SILVER, true));
-     //   heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.BRONZE, true));
-        
+        //Inicjalizacja pierwszych sesji
+       heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.GOLD));
+       heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.SILVER));
+       heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.BRONZE));
+
+
         
     }
     
@@ -65,7 +71,7 @@ public class Simulation {
         Heap heap = Heap.getInstance();
         Event e;
         Cluster clusters[] = new Cluster[3];
-        
+        Distribution distributeData = new Distribution();
         try
         {
         
@@ -77,28 +83,43 @@ public class Simulation {
 	            
 	            TimeUtils.CURRENT_TIME = e.getTime();
 	            
-	            System.out.println(TimeUtils.CURRENT_TIME);
+	            //System.out.println(TimeUtils.CURRENT_TIME);
 	           // System.out.println(e.getClass().getName());
 	            
 	            
 	            if(e instanceof EventAddRequest) //Odebranie zapytania
 	            {
 	    
-	                heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME+ DistributionUtil.generateEventUs(2) , ((EventAddRequest)e).getClusterType(), DistributionUtil.readWriteOption()));
+	            	CLUSTER_TYPE clusterType = 	((EventAddRequest)e).getClusterType();
+	            	 int ct = clusterType.ordinal();
 	                
-	                System.out.println("Nowy EventAddRequest: " + ((EventAddRequest)e).getClusterType());
+	            	 if(heap.debug)    System.out.println("Nowy EventAddRequest: " + ((EventAddRequest)e).getClusterType());
 	                
-	                int ct = ((EventAddRequest)e).getClusterType().ordinal();
 	                clusters[ct].receive(e);
 	                
 	            }
-	            else if(e instanceof EventRemoveRequest)
+	            else if(e instanceof EventRemoveRequest) //Zakonczenie wykonywania zapytania
 	            {
-	                System.out.println("Nowy EventRemoveRequest: " + ((EventRemoveRequest)e).getClusterType());
+	            	if(heap.debug)    System.out.println("Nowy EventRemoveRequest: " + ((EventRemoveRequest)e).getClusterType());
 
 	            	   int ct = ((EventRemoveRequest)e).getClusterType().ordinal();
 	            	   
 		               clusters[ct].receive(e);
+	            }
+	            else if(e instanceof EventAddSession) // przybycie sesji
+	            {
+	            	CLUSTER_TYPE clusterType = 	((EventAddSession)e).getClusterType();
+
+	                heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME+ distributeData.generateEventUs(clusterType) , clusterType));
+
+	            	int requestsPerSessionNumber = distributeData.getPareto();
+	            	for(int i=0;i<requestsPerSessionNumber;i++)
+	            	{
+	                    StatisticsSing.getInstance(). addEventRequestCounter();
+
+	            		heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME, clusterType, distributeData.readWriteOption(clusterType)));
+	            	}
+	            	if(heap.debug) 	System.out.println("Nowa sesja : " + clusterType.name());
 	            }
 	            else if(e instanceof EventVM)
 	            {
@@ -178,45 +199,45 @@ public class Simulation {
 	                {
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(0, ct, 3);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	            		heap.addElement(new EventVM(TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
+	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	            	/*	vmId = HardwareLayerSingleton.getInstance().startVMonHost(0, ct, 3);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	            		heap.addElement(new EventVM(TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
+	            		heap.addElement(new EventVM( TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(2, ct, 4);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	            		heap.addElement(new EventVM(TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));*/
+	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));*/
 	                }
 	                else if(ct == CLUSTER_TYPE.SILVER)
 	                {
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(1, ct, 3);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
 	            		HardwareLayerSingleton.getInstance().getVM(vmId).getInfo();
-	            		heap.addElement(new EventVM(TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
+	            		heap.addElement(new EventVM( TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(1, ct, 3);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	            		heap.addElement(new EventVM(TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
+	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(2, ct, 4);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	            		heap.addElement(new EventVM(TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
+	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	                }
 	                else if(ct == CLUSTER_TYPE.BRONZE)
 	                {
 	                	vmId = HardwareLayerSingleton.getInstance().startVMonHost(3, ct, 4);
 	                	if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	                	heap.addElement(new EventVM(TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
+	                	heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(3, ct, 4);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	            		heap.addElement(new EventVM(TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
+	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(4, ct, 4);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	            		heap.addElement(new EventVM(TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
+	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	                }
 	            		
 	            	
 	            }
 	           
 	            
-	            HardwareLayerSingleton.getInstance().countPowerUtilitiFrom(e.getTime());
+	            //HardwareLayerSingleton.getInstance().countPowerUtilitiFrom(e.getTime());
 	          
 	            
 	            
@@ -227,8 +248,8 @@ public class Simulation {
         	System.out.println("ERROR ! - Stóg jest pusty ");
         }
         
-        
-        
+        StatisticsSing.getInstance().getStats();
+        StatisticsSing.getInstance().saveInputStats();
     }
     
 }

@@ -4,8 +4,9 @@
  */
 package pl.pip;
 
+import pl.pip.config.TimeUtils;
 import pl.pip.event.*;
-import pl.pip.symulation.Simulation;
+import pl.pip.simulation.Simulation;
 
 
 /**
@@ -19,7 +20,7 @@ public class PIP {
     public static void main(String[] args) {
         // TODO code application logic here
         
-        Simulation s = new Simulation(177100);
+        Simulation s = new Simulation(TimeUtils.SIMULATION_FINISH_TIME);
         
         s.init();
         

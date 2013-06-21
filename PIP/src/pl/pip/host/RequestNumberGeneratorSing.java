@@ -30,5 +30,11 @@ public class RequestNumberGeneratorSing {
 	{
 		return requestId++;
 	}
+	
+	
+	public long getRequestCurentRequestId()
+	{
+		return requestId;
+	}
 
 }

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class Heap {
     private ArrayList<Event> list;
     private static volatile Heap instance = null;
-    public boolean debug = true;
+    public boolean debug = false;
     
     public static Heap getInstance()  {
 		if (instance == null)  {
