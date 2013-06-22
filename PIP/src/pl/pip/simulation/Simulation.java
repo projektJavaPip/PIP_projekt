@@ -116,7 +116,7 @@ public class Simulation {
 	            	int requestsPerSessionNumber = distributeData.getPareto();
 	            	for(int i=0;i<requestsPerSessionNumber;i++)
 	            	{
-	                    StatisticsSing.getInstance(). addEventRequestCounter();
+	                    StatisticsSing.getInstance().addEventRequestCounter();
 
 	            		heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME, clusterType, distributeData.readWriteOption(clusterType)));
 	            	}
@@ -201,12 +201,12 @@ public class Simulation {
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(0, ct, 3);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
 	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
-	            	/*	vmId = HardwareLayerSingleton.getInstance().startVMonHost(0, ct, 3);
+	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(0, ct, 3);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
 	            		heap.addElement(new EventVM( TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(2, ct, 4);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));*/
+	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	                }
 	                else if(ct == CLUSTER_TYPE.SILVER)
 	                {
@@ -247,6 +247,10 @@ public class Simulation {
         catch(NullPointerException ne)
         {
         	System.out.println("ERROR ! - Stóg jest pusty ");
+        }
+        catch(Exception ne)
+        {
+        	ne.printStackTrace();
         }
         
         StatisticsSing.getInstance().getStats();
