@@ -9,10 +9,10 @@ import pl.pip.host.CLUSTER_TYPE;
 public class Distribution {
 
 
-	private double writeProbablity[] = {0.5,0.5,0.5};
+	private double writeProbablity[] = {0.9999,0.9999,0.9999};
 	
 	
-	private double lambda[] = {100,50,80};
+	private double lambda[] = {9,39,5};
 	
 	
 	private Pareto paretoDist;

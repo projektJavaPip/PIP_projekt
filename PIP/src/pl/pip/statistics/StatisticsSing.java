@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.SortedMap;
+import pl.pip.config.TimeUtils;
 
 import pl.pip.distributio.KalmanFilter;
 import pl.pip.host.CLUSTER_TYPE;
@@ -17,6 +18,7 @@ public class StatisticsSing {
 	
 	private ArrayList<Request> requestArr;
 	private LinkedList<SecondCounter> inputRequestsStats;
+        private LinkedList<SecondCounter> slaStats;
 	private static volatile StatisticsSing instance = null;
 	
 	
@@ -47,6 +49,28 @@ public class StatisticsSing {
 	}
 	
 	
+        public SecondCounter getSlaStats()
+        {
+            double time_serch = TimeUtils.CURRENT_TIME - TimeUtils.TIME_CONTROL_SAMPLING_PREODIC;
+            int index = requestArr.size() - 1 ;
+            Request r;
+            SecondCounter s = new SecondCounter(0);
+
+            while(  requestArr.get(index).leftTime > time_serch)
+            {
+                r =  requestArr.get(index);
+                --index;
+                s.addCounter(r.getClusterType().ordinal());
+                if ( r.leftTime  - r.getArrivalTime()  > TimeUtils.SLA[r.getClusterType().ordinal()])
+                {
+                    s.addSlaCounter(r.getClusterType().ordinal());
+                }
+                
+                
+            }
+            return s;
+        }
+       
 	public void getStats()
 	{
 		System.out.println("Wygenerowane: " + EventRequestCouner);
@@ -65,6 +89,7 @@ public class StatisticsSing {
 				{
 					secondPointer = second;
 					inputRequestsStats.add(new SecondCounter(secondPointer));
+                                        
 				}
 				
 				if(inputRequestsStats.isEmpty())
@@ -77,6 +102,13 @@ public class StatisticsSing {
 					if(secondPointer == s.getSecond()) 
 					{
 							s.addCounter(r.getClusterType().ordinal());
+                                                        
+                                                        if ( r.leftTime  - r.getArrivalTime()  > TimeUtils.SLA[r.getClusterType().ordinal()])
+                                                        {
+                                                            s.addSlaCounter(r.getClusterType().ordinal());
+
+                                                        }
+                                                        
 							//added  = true;
 					}
 				}
@@ -134,10 +166,11 @@ public class StatisticsSing {
 		EventRequestCouner++;
 	}
 	
-	private class SecondCounter
+	public class SecondCounter
 	{
 		int second;
 		int[] counter;
+                int[] sla_counter;
 		
 		public SecondCounter(int sec)
 		{
@@ -146,6 +179,11 @@ public class StatisticsSing {
 			counter[0] = 0;
 			counter[1] = 0;
 			counter[2] = 0;
+                        
+                        sla_counter = new int[3];
+			sla_counter[0] = 0;
+			sla_counter[1] = 0;
+			sla_counter[2] = 0;
 		}
 		
 		public SecondCounter(int sec,int i)
@@ -156,6 +194,15 @@ public class StatisticsSing {
 			counter[1] = 0;
 			counter[2] = 0;
 			counter[i]++;
+                        
+                        sla_counter = new int[3];
+			sla_counter[0] = 0;
+			sla_counter[1] = 0;
+			sla_counter[2] = 0;
+                        counter[i]++;
+                        
+                        
+                        
 		}
 		
 		public int getSecond()
@@ -168,9 +215,34 @@ public class StatisticsSing {
 			return counter[i];
 		}
 		
+                public int getSlaCounter(int i)
+		{
+			return sla_counter[i];
+		}
+                
 		public void addCounter(int i)
 		{
 			counter[i]++;
 		}
+                
+                public void addSlaCounter(int i)
+		{
+			sla_counter[i]++;
+		}
 	}
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 }
