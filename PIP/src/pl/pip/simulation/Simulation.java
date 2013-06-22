@@ -4,6 +4,7 @@
  */
 package pl.pip.simulation;
 
+import pl.pip.event.EventAddSession;
 import com.sun.corba.se.spi.monitoring.StatisticsAccumulator;
 
 import pl.pip.config.*;
