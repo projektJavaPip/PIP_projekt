@@ -40,7 +40,7 @@ public class Optimizer {
     {
        StatisticsSing statistics = StatisticsSing.getInstance();
        SecondCounter sc = statistics.getSlaStats();
-       System.out.println(TimeUtils.CURRENT_TIME + " : " + sc.getSlaCounter(0) / sc.getCounter(0) + " : " + sc.getSlaCounter(1)  / sc.getCounter(1)+ " : " + sc.getSlaCounter(2)  / sc.getCounter(2) );
+       System.out.println(TimeUtils.CURRENT_TIME + " : " + sc.getSlaCounter(0) +  " : " + sc.getCounter(0) + " : " + sc.getSlaCounter(1)  +  " : " + sc.getCounter(1)+ " : " + sc.getSlaCounter(2)  +  " : " + sc.getCounter(2) );
        
     }
     
