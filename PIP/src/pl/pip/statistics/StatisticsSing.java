@@ -85,7 +85,7 @@ public class StatisticsSing {
 				
 				second =  (int) Math.round(r.getArrivalTime()/1000);
 				
-				if(second % 30 == 0 && secondPointer != second)
+				if(second % 60 == 0 && secondPointer != second)
 				{
 					secondPointer = second;
 					inputRequestsStats.add(new SecondCounter(secondPointer));
@@ -102,6 +102,7 @@ public class StatisticsSing {
 					if(secondPointer == s.getSecond()) 
 					{
 							s.addCounter(r.getClusterType().ordinal());
+
                                                         
                                                         if ( r.leftTime  - r.getArrivalTime()  > TimeUtils.SLA[r.getClusterType().ordinal()])
                                                         {
@@ -109,6 +110,9 @@ public class StatisticsSing {
 
                                                         }
                                                         
+
+
+
 							//added  = true;
 					}
 				}
