@@ -16,13 +16,13 @@ public class TimeUtils {
     public final static double TIME_DELAY_POWER_OFF_VM = 45000; //45s
     public final static double TIME_DELAY_VM_MIGRATION = 30000; //30s
     
-    public final static double TIME_DELAY_POWER_ON_HOST = 105000; //1m 45s
-    public final static double TIME_DELAY_POWER_OFF_HOST = 45000; //45s
+    public final static double TIME_DELAY_POWER_ON_HOST = 175000; //2m 55s
+    public final static double TIME_DELAY_POWER_OFF_HOST = 90000; //1m 30s
     
     public final static double TIME_CONTROL_SAMPLING_PREODIC = 120000; //2 m
     
     
-    public final static double SIMULATION_FINISH_TIME = 5 * 3600 * 1000;
+    public final static double SIMULATION_FINISH_TIME = 24 * 3600 * 1000;
     
     public static double CURRENT_TIME;
     
