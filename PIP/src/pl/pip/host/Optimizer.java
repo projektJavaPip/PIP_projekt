@@ -7,36 +7,25 @@ package pl.pip.host;
 import org.omg.CORBA.TIMEOUT;
 import pl.pip.config.TimeUtils;
 import pl.pip.statistics.StatisticsSing;
-import pl.pip.statistics.StatisticsSing.SecondCounter;
+import pl.pip.statistics.SecondCounter;
 
 /**
  *
  * @author supp
  */
 public class Optimizer {
-    private static volatile Optimizer instance = null;
-    
-    public static Optimizer getInstance()  {
-		if (instance == null)  {
-			synchronized (Optimizer.class) {
-				if(instance == null) {
-					instance = new Optimizer();
-				}
-			}
-		}
-		return instance;
-	}
+
+
     
     
-    
-    private Optimizer()
+    public Optimizer()
     {
         
        
         
     }
     
-    public void run()
+    public void optimize()
     {
        StatisticsSing statistics = StatisticsSing.getInstance();
        SecondCounter sc = statistics.getSlaStats();

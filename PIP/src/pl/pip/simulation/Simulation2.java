@@ -4,9 +4,14 @@
  */
 package pl.pip.simulation;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.Scanner;
 
 import pl.pip.event.EventAddSession;
 import com.sun.corba.se.spi.monitoring.StatisticsAccumulator;
@@ -17,26 +22,68 @@ import pl.pip.host.CLUSTER_TYPE;
 import pl.pip.host.Cluster;
 import pl.pip.host.HOST_STATUS;
 import pl.pip.host.HardwareLayerSingleton;
-import pl.pip.host.Optimizer;
 import pl.pip.host.VM;
 import pl.pip.host.VM_STATUS;
 import pl.pip.statistics.StatisticsSing;
 import pl.pip.distributio.Distribution;
 
 /**
- *
+ *Klasa symulacji pobierająca dane o Lambdach do rozkladu oraz ilosci prob Pareto z plików wejsciowych
  * @author supp
  */
-public class Simulation {
+public class Simulation2 {
     
     
     double max_time;
-    Optimizer opt;
+    LinkedList<Double>[] lambdaList;
+    LinkedList<Integer>[] paretoList;
     
-    
-    public Simulation(double t)
+    public Simulation2(double t)
     {
         max_time = t;
+        System.out.println("Wczytuje dane wejściowe");
+        String line;
+        String tmp[];
+       
+        lambdaList = (LinkedList<Double>[]) new LinkedList[3];
+        paretoList = (LinkedList<Integer>[]) new LinkedList[3];
+        
+        
+        FileReader fileReader;
+        BufferedReader bufferedReader;
+    
+        
+        
+        for(int i=0;i<3;i++)
+        {
+        	try 
+        	{
+				fileReader = new FileReader("output/lambda" + i + ".csv");
+			
+			
+	        	bufferedReader = new BufferedReader(fileReader); 
+	        	lambdaList[i]= new LinkedList<Double>();
+	        	paretoList[i] = new LinkedList<>();
+	        	while((line = bufferedReader.readLine()) != null)
+	        	{
+	        		
+	        		tmp = line.split(";");
+	        		//System.out.println(line);
+	        		//System.out.println(Double.valueOf(tmp[0]));
+	        		lambdaList[i].addLast(Double.valueOf(tmp[0]));
+	        		paretoList[i].addLast(Integer.decode(tmp[1]));
+	        	}
+	        	bufferedReader.close();
+	        
+        	}
+        	catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+        	}
+        
+        }
+        
+        System.out.println("Dane wejściowe wczytane");
     }
     
     
@@ -70,10 +117,8 @@ public class Simulation {
        heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.SILVER));
        heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.BRONZE));
 
-       heap.addElement(new EventPrediction(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM + TimeUtils.TIME_OPTIMIZE));
-       
-       opt = new Optimizer();
-       
+
+        
     }
     
     public void start()
@@ -82,15 +127,14 @@ public class Simulation {
         Event e;
         Cluster clusters[] = new Cluster[3];
         Distribution distributeData = new Distribution();
-        PrintWriter pw[] = new PrintWriter[3];
+        PrintWriter[] inputLambda = new PrintWriter[3];
         for(int i=0;i<3;i++)
 			try {
-				pw[i] = new PrintWriter("output/" + i + ".csv");
+				inputLambda[i] = new PrintWriter("output/lambda" + i + ".csv");
 			} catch (FileNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-       
         
         try
         {
@@ -129,18 +173,18 @@ public class Simulation {
 	            else if(e instanceof EventAddSession) // przybycie sesji
 	            {
 	            	CLUSTER_TYPE clusterType = 	((EventAddSession)e).getClusterType();
-	            	double lambda = distributeData.generateEventUs(clusterType);
+	            	double lambda =  lambdaList[clusterType.ordinal()].removeFirst();//distributeData.generateEventUs(clusterType);
 	                heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + lambda , clusterType));
 
-	            	int requestsPerSessionNumber = distributeData.getPareto();
+	            	int requestsPerSessionNumber = paretoList[clusterType.ordinal()].removeFirst();// distributeData.getPareto();
 	            	for(int i=0;i<requestsPerSessionNumber;i++)
 	            	{
 	                    StatisticsSing.getInstance().addEventRequestCounter();
 
 	            		heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME, clusterType, distributeData.readWriteOption(clusterType)));
 	            	}
+	            	inputLambda[clusterType.ordinal()].println(lambda +";" + requestsPerSessionNumber);
 	            	if(heap.debug) 	System.out.println("Nowa sesja : " + clusterType.name());
-	            	pw[clusterType.ordinal()].println(lambda + ";" + requestsPerSessionNumber);
 	            }
 	            else if(e instanceof EventVM)
 	            {
@@ -207,12 +251,6 @@ public class Simulation {
 	            	HardwareLayerSingleton.getInstance().startHost(hId);
 	            	if(heap.debug) System.out.println("Zdarzenie Hosta " + hId + " "  + ((EventHost) e).getStatus());
 	            }
-	            else if(e instanceof EventPrediction)
-                {
-                    heap.addElement(new EventPrediction(TimeUtils.CURRENT_TIME + TimeUtils.TIME_OPTIMIZE));
-                    opt.optimize();
-                }
-            
 	            else if(e instanceof EventCreateCluster)
 	            {
 	            	int vmId;
@@ -278,7 +316,7 @@ public class Simulation {
         {
         	ne.printStackTrace();
         }
-        for(int i=0;i<3;i++) pw[i].close();
+        for(int i=0;i<3;i++) inputLambda[i].close();
         
         StatisticsSing.getInstance().getStats();
         StatisticsSing.getInstance().saveInputStats();

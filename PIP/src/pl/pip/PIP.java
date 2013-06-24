@@ -7,6 +7,7 @@ package pl.pip;
 import pl.pip.config.TimeUtils;
 import pl.pip.event.*;
 import pl.pip.simulation.Simulation;
+import pl.pip.simulation.Simulation2;
 
 
 /**
