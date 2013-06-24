@@ -14,10 +14,10 @@ public class Distribution {
 	private double writeProbablity[] = {0.5,0.5,0.5};
 	int recountingTime = 0;
 	
-	private double lambda[] = {100,200,400};
+	private double lambda[] = {100,200,300};
 	
 	
-	double lambdaD[] = {10,15,80};
+	double lambdaD[] = {10,15,30};
 	
 	private Pareto paretoDist;
 	
@@ -59,10 +59,10 @@ public class Distribution {
 	 */
 	public double generateEventUs(CLUSTER_TYPE ct) throws Exception {
 		int currentTime = (int) Math.round(TimeUtils.CURRENT_TIME);
-		if(currentTime !=recountingTime && (currentTime % (8  * 1000) == 0))
+		if(currentTime !=recountingTime && (currentTime % (12  * 1000) == 0))
 		{
 			double multi = 1;
-			if(Math.random() < 0.3)  multi = 1.2;
+			if(Math.random() < 0.2)  multi = 1.2;
 		
 			
 			counter++;
@@ -82,10 +82,9 @@ public class Distribution {
 		Double ret = (double) 1 -  Math.log(Math.random()) / -(1/ lambda[ct.ordinal()]) ;
 		if(ret < 0) 
 			{
-			//throw new Exception("DUPA poison");
+
 			return (-1) * ret;
-			//	return generateEventUs(ct);
-				
+
 				
 			}
 		else return ret;

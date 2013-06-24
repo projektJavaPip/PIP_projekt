@@ -121,6 +121,7 @@ public class StatisticsSing {
 		}
 
 		inputRequestsFile.close();
+		System.out.println("Zapisano statystyki");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
