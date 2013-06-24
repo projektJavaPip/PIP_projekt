@@ -4,6 +4,10 @@
  */
 package pl.pip.simulation;
 
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import pl.pip.event.EventAddSession;
 import com.sun.corba.se.spi.monitoring.StatisticsAccumulator;
 
@@ -73,6 +77,15 @@ public class Simulation {
         Event e;
         Cluster clusters[] = new Cluster[3];
         Distribution distributeData = new Distribution();
+        PrintWriter pw[] = new PrintWriter[3];
+        for(int i=0;i<3;i++)
+			try {
+				pw[i] = new PrintWriter("output/" + i + ".csv");
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        
         try
         {
         
@@ -110,8 +123,8 @@ public class Simulation {
 	            else if(e instanceof EventAddSession) // przybycie sesji
 	            {
 	            	CLUSTER_TYPE clusterType = 	((EventAddSession)e).getClusterType();
-
-	                heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME+ distributeData.generateEventUs(clusterType) , clusterType));
+	            	double lambda = distributeData.generateEventUs(clusterType);
+	                heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + lambda , clusterType));
 
 	            	int requestsPerSessionNumber = distributeData.getPareto();
 	            	for(int i=0;i<requestsPerSessionNumber;i++)
@@ -121,6 +134,7 @@ public class Simulation {
 	            		heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME, clusterType, distributeData.readWriteOption(clusterType)));
 	            	}
 	            	if(heap.debug) 	System.out.println("Nowa sesja : " + clusterType.name());
+	            	pw[clusterType.ordinal()].println(lambda + ";" + requestsPerSessionNumber);
 	            }
 	            else if(e instanceof EventVM)
 	            {
@@ -252,6 +266,7 @@ public class Simulation {
         {
         	ne.printStackTrace();
         }
+        for(int i=0;i<3;i++) pw[i].close();
         
         StatisticsSing.getInstance().getStats();
         StatisticsSing.getInstance().saveInputStats();
