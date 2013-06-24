@@ -3,7 +3,7 @@ package pl.pip.host;
 public class Request {
 	
 	private double arrivaTime;
-	double leftTime;
+	public double leftTime;
 	long packetId;
 	int vmId;
 	boolean isWrite;

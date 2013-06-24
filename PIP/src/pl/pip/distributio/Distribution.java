@@ -11,11 +11,14 @@ import pl.pip.host.CLUSTER_TYPE;
 public class Distribution {
 
 
+
 	private double writeProbablity[] = {0.5,0.5,0.5};
 	int recountingTime = 0;
+
 	
 	private double lambda[] = {100,200,400};
 	
+
 	
 	double lambdaD[] = {10,15,80};
 	
