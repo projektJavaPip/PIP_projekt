@@ -4,6 +4,10 @@
  */
 package pl.pip.simulation;
 
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import pl.pip.event.EventAddSession;
 import com.sun.corba.se.spi.monitoring.StatisticsAccumulator;
 
@@ -73,6 +77,15 @@ public class Simulation {
         Event e;
         Cluster clusters[] = new Cluster[3];
         Distribution distributeData = new Distribution();
+        PrintWriter pw[] = new PrintWriter[3];
+        for(int i=0;i<3;i++)
+			try {
+				pw[i] = new PrintWriter("output/" + i + ".csv");
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        
         try
         {
         
@@ -110,17 +123,18 @@ public class Simulation {
 	            else if(e instanceof EventAddSession) // przybycie sesji
 	            {
 	            	CLUSTER_TYPE clusterType = 	((EventAddSession)e).getClusterType();
-
-	                heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME+ distributeData.generateEventUs(clusterType) , clusterType));
+	            	double lambda = distributeData.generateEventUs(clusterType);
+	                heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + lambda , clusterType));
 
 	            	int requestsPerSessionNumber = distributeData.getPareto();
 	            	for(int i=0;i<requestsPerSessionNumber;i++)
 	            	{
-	                    StatisticsSing.getInstance(). addEventRequestCounter();
+	                    StatisticsSing.getInstance().addEventRequestCounter();
 
 	            		heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME, clusterType, distributeData.readWriteOption(clusterType)));
 	            	}
 	            	if(heap.debug) 	System.out.println("Nowa sesja : " + clusterType.name());
+	            	pw[clusterType.ordinal()].println(lambda + ";" + requestsPerSessionNumber);
 	            }
 	            else if(e instanceof EventVM)
 	            {
@@ -201,12 +215,12 @@ public class Simulation {
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(0, ct, 3);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
 	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
-	            	/*	vmId = HardwareLayerSingleton.getInstance().startVMonHost(0, ct, 3);
+	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(0, ct, 3);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
 	            		heap.addElement(new EventVM( TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	            		vmId = HardwareLayerSingleton.getInstance().startVMonHost(2, ct, 4);
 	            		if(heap.debug) System.out.println("Dodałem VM " + ct.name() + " o id "  + vmId);
-	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));*/
+	            		heap.addElement(new EventVM(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_VM, VM_STATUS.TURNING_ON, vmId));
 	                }
 	                else if(ct == CLUSTER_TYPE.SILVER)
 	                {
@@ -248,6 +262,11 @@ public class Simulation {
         {
         	System.out.println("ERROR ! - Stóg jest pusty ");
         }
+        catch(Exception ne)
+        {
+        	ne.printStackTrace();
+        }
+        for(int i=0;i<3;i++) pw[i].close();
         
         StatisticsSing.getInstance().getStats();
         StatisticsSing.getInstance().saveInputStats();

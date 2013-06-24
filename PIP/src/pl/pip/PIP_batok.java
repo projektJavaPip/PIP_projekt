@@ -32,17 +32,22 @@ public class PIP_batok {
 		
 		for(int i =0;i< 1000;i++)
 		{
-			//System.out.print(distr.generateEventUs(CLUSTER_TYPE.GOLD) + " ");
+			try {
+				System.out.println(distr.generateEventUs(CLUSTER_TYPE.GOLD) + " ");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			//System.out.println(distr.readWriteOption(CLUSTER_TYPE.GOLD));
-			int tmp = distr.getPareto();
+			/*int tmp = distr.getPareto();
 	
-			j[tmp]++;
+			j[tmp]++;*/
 		}
 		
-		for(int i=0;i<20;i++)
+	/*	for(int i=0;i<20;i++)
 		{
 			System.out.println(j[i]);
-		}
+		}*/
 
 	}
 	
