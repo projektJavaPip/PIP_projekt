@@ -67,6 +67,7 @@ public class VM {
 	
 	public void freCpu()
 	{
+		status = VM_STATUS.FREE;
 		freeCpu++;
 	}
 	

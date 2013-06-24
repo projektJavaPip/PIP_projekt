@@ -14,6 +14,8 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 import pl.pip.event.EventAddSession;
+import pl.pip.event.EventPrediction;
+
 import com.sun.corba.se.spi.monitoring.StatisticsAccumulator;
 
 import pl.pip.config.*;
@@ -22,6 +24,7 @@ import pl.pip.host.CLUSTER_TYPE;
 import pl.pip.host.Cluster;
 import pl.pip.host.HOST_STATUS;
 import pl.pip.host.HardwareLayerSingleton;
+import pl.pip.host.Optimizer;
 import pl.pip.host.VM;
 import pl.pip.host.VM_STATUS;
 import pl.pip.statistics.StatisticsSing;
@@ -37,6 +40,9 @@ public class Simulation2 {
     double max_time;
     LinkedList<Double>[] lambdaList;
     LinkedList<Integer>[] paretoList;
+    Optimizer opt;
+    Distribution distributeData;
+    
     
     public Simulation2(double t)
     {
@@ -47,11 +53,11 @@ public class Simulation2 {
        
         lambdaList = (LinkedList<Double>[]) new LinkedList[3];
         paretoList = (LinkedList<Integer>[]) new LinkedList[3];
-        
+       
         
         FileReader fileReader;
         BufferedReader bufferedReader;
-    
+        distributeData = new Distribution();
         
         
         for(int i=0;i<3;i++)
@@ -59,7 +65,8 @@ public class Simulation2 {
         	try 
         	{
 				fileReader = new FileReader("output/lambda" + i + ".csv");
-			
+				
+		
 			
 	        	bufferedReader = new BufferedReader(fileReader); 
 	        	lambdaList[i]= new LinkedList<Double>();
@@ -98,6 +105,7 @@ public class Simulation2 {
         
         heap.clear();
         
+       
         
         //Uruchomienie hostów
         heap.addElement(new EventHost(0, HOST_STATUS.BOOT, 0));
@@ -117,6 +125,7 @@ public class Simulation2 {
        heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.SILVER));
        heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.BRONZE));
 
+       heap.addElement(new EventPrediction(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM + TimeUtils.TIME_OPTIMIZE));
 
         
     }
@@ -126,15 +135,8 @@ public class Simulation2 {
         Heap heap = Heap.getInstance();
         Event e;
         Cluster clusters[] = new Cluster[3];
-        Distribution distributeData = new Distribution();
-        PrintWriter[] inputLambda = new PrintWriter[3];
-        for(int i=0;i<3;i++)
-			try {
-				inputLambda[i] = new PrintWriter("output/lambda" + i + ".csv");
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+        opt = new Optimizer();
+  
         
         try
         {
@@ -183,7 +185,6 @@ public class Simulation2 {
 
 	            		heap.addElement(new EventAddRequest(TimeUtils.CURRENT_TIME, clusterType, distributeData.readWriteOption(clusterType)));
 	            	}
-	            	inputLambda[clusterType.ordinal()].println(lambda +";" + requestsPerSessionNumber);
 	            	if(heap.debug) 	System.out.println("Nowa sesja : " + clusterType.name());
 	            }
 	            else if(e instanceof EventVM)
@@ -191,7 +192,7 @@ public class Simulation2 {
 	            	int vmId = (((EventVM) e).getIdVm());
 	            	VM tmpVM = HardwareLayerSingleton.getInstance().getVM(vmId);
 	            	
-	            	if(heap.debug) System.out.println("Zdarzenie VM " + vmId + " " + ((EventVM) e).getStatus());
+	            	System.out.println("Zdarzenie VM " + vmId + " " + ((EventVM) e).getStatus());
 	            	tmpVM.getInfo();
 	            	
 	            	switch(((EventVM) e).getStatus())
@@ -242,6 +243,7 @@ public class Simulation2 {
 					case ON:
 						break;
 					case SHUTDOWN:
+						
 						break;
 					default:
 						break;
@@ -251,6 +253,11 @@ public class Simulation2 {
 	            	HardwareLayerSingleton.getInstance().startHost(hId);
 	            	if(heap.debug) System.out.println("Zdarzenie Hosta " + hId + " "  + ((EventHost) e).getStatus());
 	            }
+	            else if(e instanceof EventPrediction)
+                {
+                    heap.addElement(new EventPrediction(TimeUtils.CURRENT_TIME + TimeUtils.TIME_OPTIMIZE));
+                    opt.optimize();
+                }
 	            else if(e instanceof EventCreateCluster)
 	            {
 	            	int vmId;
@@ -316,10 +323,10 @@ public class Simulation2 {
         {
         	ne.printStackTrace();
         }
-        for(int i=0;i<3;i++) inputLambda[i].close();
+     
         
-        StatisticsSing.getInstance().getStats();
-        StatisticsSing.getInstance().saveInputStats();
+        //StatisticsSing.getInstance().getStats();
+        //StatisticsSing.getInstance().saveInputStats();
     }
     
 }

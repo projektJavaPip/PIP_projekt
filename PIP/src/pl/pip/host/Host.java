@@ -40,6 +40,8 @@ public class Host {
 	
 	public int getVmCounter() { return vmarray.size();}
 	
+
+	
 	
 	public Vector<VM> getVMforCluster(CLUSTER_TYPE ct)
 	{
@@ -72,6 +74,8 @@ public class Host {
 		{
 			if(vmarray.elementAt(i).id ==vmId ) 
 			{
+				
+				freeCpu+=  vmarray.elementAt(i).maxCpu;
 				vmarray.removeElementAt(i);
 				return true;
 			}
@@ -86,13 +90,25 @@ public class Host {
 		if(v.maxCpu < freeCpu)
 		{
 			vmarray.add(v);
+			freeCpu-=v.maxCpu;
 			return true;
 		}
 		else return false;
 	}
 	
 	
-	
+	public boolean hasVM(int vmId)
+	{
+		for(int i=0;i<vmarray.size();i++)
+		{
+			if(vmarray.elementAt(i).id ==vmId ) 
+			{
+		
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	
 	public  boolean addVM(CLUSTER_TYPE ct,int cpus,int vMid)
@@ -105,12 +121,16 @@ public class Host {
 			{
 				freeCpu-= cpus;
 				vmarray.add(new VM(ct, cpus,vMid,hostType));
+				
 				return true;
 			}
 		}
 		else return false;
 	}
 	
+	
+	
+
 	public HOST_STATUS getState()
 	{
 		return state;

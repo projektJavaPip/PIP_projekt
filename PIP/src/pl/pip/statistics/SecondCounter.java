@@ -3,18 +3,18 @@ package pl.pip.statistics;
 public class SecondCounter
 {
 	int second;
-	int[] counter;
-            int[] sla_counter;
+	int[] inputCounter;
+    int[] sla_counter;
 	
 	public SecondCounter(int sec)
 	{
 		second = sec;
-		counter = new int[3];
-		counter[0] = 0;
-		counter[1] = 0;
-		counter[2] = 0;
+		inputCounter = new int[3];
+		inputCounter[0] = 0;
+		inputCounter[1] = 0;
+		inputCounter[2] = 0;
                     
-                    sla_counter = new int[3];
+        sla_counter = new int[3];
 		sla_counter[0] = 0;
 		sla_counter[1] = 0;
 		sla_counter[2] = 0;
@@ -23,17 +23,17 @@ public class SecondCounter
 	public SecondCounter(int sec,int i)
 	{
 		second = sec;
-		counter = new int[3];
-		counter[0] = 0;
-		counter[1] = 0;
-		counter[2] = 0;
-		counter[i]++;
+		inputCounter = new int[3];
+		inputCounter[0] = 0;
+		inputCounter[1] = 0;
+		inputCounter[2] = 0;
+		inputCounter[i]++;
                     
                     sla_counter = new int[3];
 		sla_counter[0] = 0;
 		sla_counter[1] = 0;
 		sla_counter[2] = 0;
-                    counter[i]++;
+                    inputCounter[i]++;
                     
                     
                     
@@ -46,7 +46,7 @@ public class SecondCounter
 	
 	public int getCounter(int i)
 	{
-		return counter[i];
+		return inputCounter[i];
 	}
 	
             public int getSlaCounter(int i)
@@ -56,7 +56,7 @@ public class SecondCounter
             
 	public void addCounter(int i)
 	{
-		counter[i]++;
+		inputCounter[i]++;
 	}
             
             public void addSlaCounter(int i)

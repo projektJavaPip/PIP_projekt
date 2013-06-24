@@ -1,15 +1,19 @@
 package pl.pip.statistics;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.SortedMap;
+import java.util.Vector;
 
 import pl.pip.config.TimeUtils;
 import pl.pip.distributio.KalmanFilter;
 import pl.pip.host.CLUSTER_TYPE;
+import pl.pip.host.HardwareLayerSingleton;
+import pl.pip.host.PowerCalculation;
 import pl.pip.host.Request;
 
 
@@ -17,9 +21,18 @@ public class StatisticsSing {
 
 	
 	private ArrayList<Request> requestArr;
+	private ArrayList<Request> newRequestsArr;
 	private LinkedList<SecondCounter> inputRequestsStats;
+	private LinkedList<VMinfo> vmStatus;
+	
+	
 	private static volatile StatisticsSing instance = null;
 	
+	
+	public void addvmStatus(VMinfo v)
+	{
+		vmStatus.add(v);
+	}
 	
 	private int EventRequestCouner = 0;
 	
@@ -40,12 +53,21 @@ public class StatisticsSing {
 	private StatisticsSing()
 	{
 		requestArr = new ArrayList<>();
+		newRequestsArr = new ArrayList<>();
+		vmStatus = new LinkedList<>();
 	}
 	
 	public void addRequest(Request r)
 	{
 		requestArr.add(r);
 	}
+	
+	
+	public void addNewRequest(Request r)
+	{
+		newRequestsArr.add(r);
+	}
+	
 	
 	
 	public void getStats()
@@ -62,7 +84,7 @@ public class StatisticsSing {
 				
 				second =  (int) Math.round(r.getArrivalTime()/1000);
 				
-				if(second % 60 == 0 && secondPointer != second)
+				if(second % 180 == 0 && secondPointer != second)
 				{
 					secondPointer = second;
 					inputRequestsStats.add(new SecondCounter(secondPointer));
@@ -92,9 +114,16 @@ public class StatisticsSing {
 		
 		}
 		
+	
+	public void getVMstatus()
+	{
+		
+	}
+	
+	
     public SecondCounter getSlaStats()
     {
-        double time_serch = TimeUtils.CURRENT_TIME - TimeUtils.TIME_CONTROL_SAMPLING_PREODIC;
+        double time_serch = TimeUtils.CURRENT_TIME - TimeUtils.TIME_OPTIMIZE;
         int index = requestArr.size() - 1 ;
         Request r;
         SecondCounter s = new SecondCounter(0);
@@ -113,7 +142,11 @@ public class StatisticsSing {
         }
         return s;
     }
-	
+    
+    
+    
+    
+
 	public void saveInputStats()
 	{
 		
@@ -150,6 +183,59 @@ public class StatisticsSing {
 		inputRequestsFile.close();
 		System.out.println("Zapisano statystyki");
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	public void savePowerUtilization()
+	{
+		Vector<PowerCalculation> powerUti = HardwareLayerSingleton.getInstance().getPowerCalculation();
+		try {
+			PrintWriter inputRequestsFile = new PrintWriter("output/powertCalculations.csv");
+			
+			
+			for(PowerCalculation pc : powerUti)
+			{
+				
+				inputRequestsFile.println( (int) pc.getLastTime() /1000/60 + ";" + (int) pc.getPowerLevel());
+			}
+			
+			
+			inputRequestsFile.close();
+			
+			
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	
+	public void saveVMstats()
+	{
+		
+		try {
+			PrintWriter inputRequestsFile = new PrintWriter("output/vmStats.csv");
+			
+			
+			for(VMinfo vm : vmStatus)
+			{
+				
+				inputRequestsFile.println(vm.getData());
+			}
+			
+			
+			inputRequestsFile.close();
+			
+			
+			
+		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

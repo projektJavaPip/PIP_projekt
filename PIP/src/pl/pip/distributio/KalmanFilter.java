@@ -8,6 +8,9 @@ public class KalmanFilter {
 	private double R = 0.0001;
 	private double P = 1, X = 0, K;
 	 
+	
+	private int lastComputation =0;
+	
 	private void measurementUpdate()
 	{
 		K = (P + Q) / (P + Q + R);
@@ -33,7 +36,13 @@ public class KalmanFilter {
 	
 	public int compute(int input)
 	{
-		return (int) Math.round(update(input));
+		lastComputation = (int) Math.round(update(input));
+		return lastComputation;
+	}
+	
+	public int getPrediction()
+	{
+		return lastComputation;
 	}
 	
 	

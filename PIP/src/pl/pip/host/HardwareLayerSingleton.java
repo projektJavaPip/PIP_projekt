@@ -24,7 +24,7 @@ static int VMid =1;
 
 
 
-	private int getVmId()
+	int getVmId()
 	{
 		return VMid++;
 	}
@@ -58,7 +58,7 @@ static int VMid =1;
 		if(hostsArray.elementAt(Id).getState() == HOST_STATUS.OFF)
 		{
 			hostsArray.elementAt(Id).setState(HOST_STATUS.BOOT);
-			Heap.getInstance().addElement(new EventHost(TimeUtils.TIME_DELAY_POWER_ON_HOST, HOST_STATUS.ON, Id));
+			Heap.getInstance().addElement(new EventHost(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST, HOST_STATUS.ON, Id));
 			return true;
 		}
 		else return false;
@@ -118,10 +118,7 @@ static int VMid =1;
 	{
 		for(Host h : hostsArray)
 		{
-			for(VM v : h.getVms())
-			{
-				if(v.id == vmId)  h.removeVM(vmId);
-			}
+			if(h.hasVM(vmId)) h.removeVM(vmId);
 		}
 	}
 	
@@ -133,7 +130,10 @@ static int VMid =1;
 		
 
 	
-	
+	public void setHostState(int hid,HOST_STATUS st)
+	{
+		hostsArray.elementAt(hid).setState(st);
+	}
 	
 	/**
 	 * Zwraca maszyny wirtuale przypisane do konkretnego klastra
@@ -243,7 +243,7 @@ static int VMid =1;
 			}
 			newPowerUtilization += tmpPowerUtilization;
 		}
-		newPowerUtilization = tmpPowerUtilization * timeForCalculation / 3600 / 1000;
+		newPowerUtilization = newPowerUtilization * timeForCalculation / 3600 / 1000;
 		powerUtilization.add(new PowerCalculation(toTime, lastMeasuere + newPowerUtilization));
 		
 		
@@ -252,9 +252,28 @@ static int VMid =1;
 	
 	
 	
+	
+	public Vector<Host> getHosts()
+	{
+		return hostsArray;
+	}
+	
+	
+	public Vector<PowerCalculation> getPowerCalculation()
+	{
+		return powerUtilization;
+	}
+	
+	
 	public void showPowerCalculations()
 	{
 		for(PowerCalculation pc : powerUtilization) System.out.println(pc.getLastTime() + " : " + pc.getPowerLevel());
+	}
+
+	public HOST_STATUS getHostState(int i) 
+	{
+		return hostsArray.elementAt(i).getState();
+
 	}
 
 	

@@ -4,9 +4,13 @@
  */
 package pl.pip.simulation;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
 
 import pl.pip.event.EventAddSession;
 import com.sun.corba.se.spi.monitoring.StatisticsAccumulator;
@@ -21,6 +25,7 @@ import pl.pip.host.Optimizer;
 import pl.pip.host.VM;
 import pl.pip.host.VM_STATUS;
 import pl.pip.statistics.StatisticsSing;
+import pl.pip.statistics.VMinfo;
 import pl.pip.distributio.Distribution;
 
 /**
@@ -30,15 +35,28 @@ import pl.pip.distributio.Distribution;
 public class Simulation {
     
     
-    double max_time;
     Optimizer opt;
     
+    
+    double max_time;
+    LinkedList<Double>[] lambdaList;
+    LinkedList<Integer>[] paretoList;
     
     public Simulation(double t)
     {
         max_time = t;
-    }
+        System.out.println("Wczytuje dane wejściowe");
+        String line;
+        String tmp[];
+       
+        lambdaList = (LinkedList<Double>[]) new LinkedList[3];
+        paretoList = (LinkedList<Integer>[]) new LinkedList[3];
+        
+        
+        FileReader fileReader;
+        BufferedReader bufferedReader;
     
+    }
     
     
    
@@ -70,7 +88,7 @@ public class Simulation {
        heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.SILVER));
        heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.BRONZE));
 
-       heap.addElement(new EventPrediction(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM + TimeUtils.TIME_OPTIMIZE));
+       heap.addElement(new EventPrediction(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM + TimeUtils.TIME_OPTIMIZE *2));
        
        opt = new Optimizer();
        
@@ -85,7 +103,7 @@ public class Simulation {
         PrintWriter pw[] = new PrintWriter[3];
         for(int i=0;i<3;i++)
 			try {
-				pw[i] = new PrintWriter("output/" + i + ".csv");
+				pw[i] = new PrintWriter("output/lambda" + i + ".csv");
 			} catch (FileNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -131,7 +149,8 @@ public class Simulation {
 	            	CLUSTER_TYPE clusterType = 	((EventAddSession)e).getClusterType();
 	            	double lambda = distributeData.generateEventUs(clusterType);
 	                heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + lambda , clusterType));
-
+	               // System.out.println(lambda);
+	                
 	            	int requestsPerSessionNumber = distributeData.getPareto();
 	            	for(int i=0;i<requestsPerSessionNumber;i++)
 	            	{
@@ -147,7 +166,7 @@ public class Simulation {
 	            	int vmId = (((EventVM) e).getIdVm());
 	            	VM tmpVM = HardwareLayerSingleton.getInstance().getVM(vmId);
 	            	
-	            	if(heap.debug) System.out.println("Zdarzenie VM " + vmId + " " + ((EventVM) e).getStatus());
+	            	//System.out.println("Zdarzenie VM " + vmId + " " + ((EventVM) e).getStatus());
 	            	tmpVM.getInfo();
 	            	
 	            	switch(((EventVM) e).getStatus())
@@ -182,20 +201,39 @@ public class Simulation {
 	            	}
 	            	
 	            	clusters[tmpVM.getCluster().ordinal()].actualizeVms();
-	            	
+	            	   HardwareLayerSingleton.getInstance().countPowerUtilitiFrom(TimeUtils.CURRENT_TIME);
+	            	   
+	            	   int[] vms = new int[3];
+	            	   
+	            	 
+	            		  vms[0] =  HardwareLayerSingleton.getInstance().getVMsforCluster(CLUSTER_TYPE.GOLD).size();
+	            		  vms[1] =  HardwareLayerSingleton.getInstance().getVMsforCluster(CLUSTER_TYPE.SILVER).size();
+	            		  vms[2] =  HardwareLayerSingleton.getInstance().getVMsforCluster(CLUSTER_TYPE.BRONZE).size();
+	            		  StatisticsSing.getInstance().addvmStatus(new VMinfo(TimeUtils.CURRENT_TIME, vms));
+	            	   
+	            	   
 	            	
 	            }
 	            else if(e instanceof EventHost)
 	            {
+	            	
+
 	            	int hId = ((EventHost) e).getIdHost();
+	            	
+	            	
+	            	System.out.println("Zdarzenie HOSTA " + hId + " " + ((EventHost) e).getStatus());
+
 	            	
 	            	switch(((EventHost) e).getStatus())
 	            	{
 					case BOOT:
+					 	HardwareLayerSingleton.getInstance().startHost(hId);
 						break;
 					case OFF:
+						HardwareLayerSingleton.getInstance().setHostState(hId,HOST_STATUS.OFF);
 						break;
 					case ON:
+						HardwareLayerSingleton.getInstance().setHostState(hId,HOST_STATUS.ON);
 						break;
 					case SHUTDOWN:
 						break;
@@ -204,15 +242,14 @@ public class Simulation {
 	            		
 	            	}
 	            	
-	            	HardwareLayerSingleton.getInstance().startHost(hId);
-	            	if(heap.debug) System.out.println("Zdarzenie Hosta " + hId + " "  + ((EventHost) e).getStatus());
+	            	   HardwareLayerSingleton.getInstance().countPowerUtilitiFrom(TimeUtils.CURRENT_TIME);
 	            }
 	            else if(e instanceof EventPrediction)
                 {
                     heap.addElement(new EventPrediction(TimeUtils.CURRENT_TIME + TimeUtils.TIME_OPTIMIZE));
                     opt.optimize();
+                    
                 }
-            
 	            else if(e instanceof EventCreateCluster)
 	            {
 	            	int vmId;
@@ -264,11 +301,13 @@ public class Simulation {
 	            }
 	           
 	            
-	            //HardwareLayerSingleton.getInstance().countPowerUtilitiFrom(e.getTime());
+	            //
 	          
 	            
 	            
 	        }
+     	   HardwareLayerSingleton.getInstance().countPowerUtilitiFrom(TimeUtils.CURRENT_TIME);
+
         }
         catch(NullPointerException ne)
         {
@@ -282,6 +321,8 @@ public class Simulation {
         
         StatisticsSing.getInstance().getStats();
         StatisticsSing.getInstance().saveInputStats();
+        StatisticsSing.getInstance().savePowerUtilization();
+        StatisticsSing.getInstance().saveVMstats();
     }
     
 }

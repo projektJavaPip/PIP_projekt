@@ -22,7 +22,7 @@ public class PIP {
         // TODO code application logic here
         
         Simulation s = new Simulation(TimeUtils.SIMULATION_FINISH_TIME);
-        
+        //Simulation2 s = new Simulation2(TimeUtils.SIMULATION_FINISH_TIME);
         s.init();
         
         s.start();

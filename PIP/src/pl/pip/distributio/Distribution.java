@@ -11,10 +11,10 @@ import pl.pip.host.CLUSTER_TYPE;
 public class Distribution {
 
 
-	private double writeProbablity[] = {0.5,0.5,0.5};
+	private double writeProbablity[] = {0.9999,0.9999,0.9999};
 	int recountingTime = 0;
 	
-	private double lambda[] = {100,200,300};
+	private double lambda[] = {150,250,350};
 	
 	
 	double lambdaD[] = {10,15,30};
@@ -82,10 +82,7 @@ public class Distribution {
 		Double ret = (double) 1 -  Math.log(Math.random()) / -(1/ lambda[ct.ordinal()]) ;
 		if(ret < 0) 
 			{
-
-			return (-1) * ret;
-
-				
+				return (-1) * ret;
 			}
 		else return ret;
 	}

@@ -28,8 +28,6 @@ public class Cluster {
 		{
 			performence += cwm.freeCpu;
 		}
-		
-		System.out.println("VMs " + clusterVms.size());	
 	}
 
 	
@@ -65,6 +63,7 @@ public class Cluster {
 			int freeVmId = getFreeVmId();
 			long packetId = RequestNumberGeneratorSing.getInstance().getRequestId(); //pobieram nastepny numer pakietu
 			Request nr = new Request(e.getTime(),packetId,((EventAddRequest) e).isWrite(),type); 
+		
 		
 			
 			if(freeVmId == -1 ) requestQuee.add(nr);  //jesli nie ma zadnej wolnej VM to wstaw pakiet na kolejke oczekujacych
@@ -105,31 +104,37 @@ public class Cluster {
 					
 					for(VM v : clusterVms)
 					{
-						if(v.id == r.vmId) v.finishRequest();
+						if(v.id == r.vmId) 
+							{
+								//System.out.println(v.id);
+								v.finishRequest();
+							}
 					}
 				}
 			}
 			if(requestQuee.size() > 0) //Tu musimy pobrac element z kolejki oczekujacych na wykonanie, sprawdzic VMke i wrzucic requesta na liste aktualnie wykonywanych
 			{
+				
+				
 				int freeVmId = getFreeVmId();
-				Request oldr = requestQuee.removeFirst(); //pobieramy pierwszy z kolejki
 				
-				VM designetedVM = clusterVms.elementAt(freeVmId);
-				int VmId = designetedVM.id;
-				double vmPerformance  = designetedVM.performance;
-				oldr.setVmId(VmId);
-				actualProcessedRequest.add(oldr); //przypisz VM do pakietu
-				if(!clusterVms.elementAt(freeVmId).doRequest()) System.out.println("Something's wrong in add Request to VM");
-				
-				double executionTime;
-				if(oldr.isWrite) executionTime = TimeUtils.TIME_PER_GHZ[type.ordinal()] / vmPerformance ;
-				else executionTime = TimeUtils.TIME_PER_GHZ[type.ordinal()] / vmPerformance /2; 
-				
-						
-				EventRemoveRequest err = new EventRemoveRequest(TimeUtils.CURRENT_TIME + executionTime,type,oldr.packetId); //- wpychamy na stog eventa kiedy pakiet zostanie obsluzony
-				Heap.getInstance().addElement(err); //umieszczam zakonczenie requesta na stogu
-				
-			}
+					Request oldr = requestQuee.removeFirst(); //pobieramy pierwszy z kolejki
+					
+					VM designetedVM = clusterVms.elementAt(freeVmId);
+					int VmId = designetedVM.id;
+					double vmPerformance  = designetedVM.performance;
+					oldr.setVmId(VmId);
+					actualProcessedRequest.add(oldr); //przypisz VM do pakietu
+					if(!clusterVms.elementAt(freeVmId).doRequest()) System.out.println("Something's wrong in add Request to VM");
+					
+					double executionTime;
+					if(oldr.isWrite) executionTime = TimeUtils.TIME_PER_GHZ[type.ordinal()] / vmPerformance ;
+					else executionTime = TimeUtils.TIME_PER_GHZ[type.ordinal()] / vmPerformance /2; 
+					
+							
+					EventRemoveRequest err = new EventRemoveRequest(TimeUtils.CURRENT_TIME + executionTime,type,oldr.packetId); //- wpychamy na stog eventa kiedy pakiet zostanie obsluzony
+					Heap.getInstance().addElement(err); //umieszczam zakonczenie requesta na stogu
+				}
 			
 			
 		}
