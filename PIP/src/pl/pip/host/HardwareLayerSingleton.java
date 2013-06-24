@@ -65,6 +65,20 @@ static int VMid =1;
 	}
 	
 	
+	public Vector<Vector<VM>> getSystemState()
+	{
+		Vector<Vector<VM>> returnData = new Vector<Vector<VM>>();
+		
+		for(Host h : hostsArray )
+		{
+			returnData.add(h.getVms());
+		}
+		return returnData;
+		
+	}
+	
+	
+	
 	/**
 	 * Uruchomienie 
 	 * @param Id

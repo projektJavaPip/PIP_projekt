@@ -4,6 +4,8 @@
  */
 package pl.pip.config;
 
+import pl.pip.event.EventPrediction;
+
 /**
  *
  * @author supp
@@ -23,6 +25,7 @@ public class TimeUtils {
     
     
     public final static double SIMULATION_FINISH_TIME = 24 * 3600 * 1000;
+	public static final double TIME_OPTIMIZE = 5 * 60 * 1000 ;
     
     public static double CURRENT_TIME;
     

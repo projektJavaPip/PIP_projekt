@@ -17,6 +17,7 @@ import pl.pip.host.CLUSTER_TYPE;
 import pl.pip.host.Cluster;
 import pl.pip.host.HOST_STATUS;
 import pl.pip.host.HardwareLayerSingleton;
+import pl.pip.host.Optimizer;
 import pl.pip.host.VM;
 import pl.pip.host.VM_STATUS;
 import pl.pip.statistics.StatisticsSing;
@@ -30,6 +31,8 @@ public class Simulation {
     
     
     double max_time;
+    Optimizer opt;
+    
     
     public Simulation(double t)
     {
@@ -67,8 +70,10 @@ public class Simulation {
        heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.SILVER));
        heap.addElement(new EventAddSession(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM, CLUSTER_TYPE.BRONZE));
 
-
-        
+       heap.addElement(new EventPrediction(TimeUtils.CURRENT_TIME + TimeUtils.TIME_DELAY_POWER_ON_HOST + TimeUtils.TIME_DELAY_POWER_ON_VM + TimeUtils.TIME_OPTIMIZE));
+       
+       opt = new Optimizer();
+       
     }
     
     public void start()
@@ -85,6 +90,7 @@ public class Simulation {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+       
         
         try
         {
@@ -201,6 +207,12 @@ public class Simulation {
 	            	HardwareLayerSingleton.getInstance().startHost(hId);
 	            	if(heap.debug) System.out.println("Zdarzenie Hosta " + hId + " "  + ((EventHost) e).getStatus());
 	            }
+	            else if(e instanceof EventPrediction)
+                {
+                    heap.addElement(new EventPrediction(TimeUtils.CURRENT_TIME + TimeUtils.TIME_OPTIMIZE));
+                    opt.optimize();
+                }
+            
 	            else if(e instanceof EventCreateCluster)
 	            {
 	            	int vmId;

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.SortedMap;
 
+import pl.pip.config.TimeUtils;
 import pl.pip.distributio.KalmanFilter;
 import pl.pip.host.CLUSTER_TYPE;
 import pl.pip.host.Request;
@@ -78,14 +79,40 @@ public class StatisticsSing {
 					{
 							s.addCounter(r.getClusterType().ordinal());
 
-							//added  = true;
+							   if ( r.leftTime  - r.getArrivalTime()  > TimeUtils.SLA[r.getClusterType().ordinal()])
+                               {
+                                   s.addSlaCounter(r.getClusterType().ordinal());
+
+                               }
+                               
+
 					}
 				}
 			}
 		
 		}
 		
-	
+    public SecondCounter getSlaStats()
+    {
+        double time_serch = TimeUtils.CURRENT_TIME - TimeUtils.TIME_CONTROL_SAMPLING_PREODIC;
+        int index = requestArr.size() - 1 ;
+        Request r;
+        SecondCounter s = new SecondCounter(0);
+
+        while(  requestArr.get(index).leftTime > time_serch)
+        {
+            r =  requestArr.get(index);
+            --index;
+            s.addCounter(r.getClusterType().ordinal());
+            if ( r.leftTime  - r.getArrivalTime()  > TimeUtils.SLA[r.getClusterType().ordinal()])
+            {
+                s.addSlaCounter(r.getClusterType().ordinal());
+            }
+            
+            
+        }
+        return s;
+    }
 	
 	public void saveInputStats()
 	{
@@ -136,43 +163,5 @@ public class StatisticsSing {
 		EventRequestCouner++;
 	}
 	
-	private class SecondCounter
-	{
-		int second;
-		int[] counter;
-		
-		public SecondCounter(int sec)
-		{
-			second = sec;
-			counter = new int[3];
-			counter[0] = 0;
-			counter[1] = 0;
-			counter[2] = 0;
-		}
-		
-		public SecondCounter(int sec,int i)
-		{
-			second = sec;
-			counter = new int[3];
-			counter[0] = 0;
-			counter[1] = 0;
-			counter[2] = 0;
-			counter[i]++;
-		}
-		
-		public int getSecond()
-		{
-			return second;
-		}
-		
-		public int getCounter(int i)
-		{
-			return counter[i];
-		}
-		
-		public void addCounter(int i)
-		{
-			counter[i]++;
-		}
-	}
+	
 }

@@ -21,7 +21,7 @@ public class PIP {
     public static void main(String[] args) {
         // TODO code application logic here
         
-        Simulation2 s = new Simulation2(TimeUtils.SIMULATION_FINISH_TIME);
+        Simulation s = new Simulation(TimeUtils.SIMULATION_FINISH_TIME);
         
         s.init();
         
